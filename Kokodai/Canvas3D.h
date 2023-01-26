@@ -1,9 +1,10 @@
 #pragma once
+#include<span>
+#include<wrl.h>
+#include<vector>
 #include<d3d11.h>
 #include<d3dcompiler.h>
-#include<wrl.h>
 #include<DirectXMath.h>
-#include<vector>
 #pragma comment(lib,"d3d11.lib")
 #pragma comment(lib,"D3DCompiler.lib")
 
@@ -22,12 +23,13 @@ private:
 	PtrManager<ID3D11Buffer> ConstBuffer;
 private:
 	DirectX::XMMATRIX transform_matrix;
-private:
+public:
 	struct VertexType
 	{
 		float x, y, z;
 		unsigned char r, g, b, a;
 	};
+	size_t vertices;
 private:
 	std::vector<VertexType> VERTEX_BUFFER;
 private:
@@ -46,4 +48,5 @@ public:
 	std::pair<float, float> GetNormalizedWindowPos(int x, int y) const;
 	void ClearCanvas() const;
 	void PresentOnScreen() const;
+	void DrawObjects(std::span<VertexType> ObjectBuffer);
 };

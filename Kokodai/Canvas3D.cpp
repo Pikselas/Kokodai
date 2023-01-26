@@ -15,10 +15,10 @@ void Canvas3D::DrawFunction(Window& wnd)
 	//vertex buffer description
 	D3D11_BUFFER_DESC bd = { 0 };
 	bd.ByteWidth = sizeof(VertexType) * VERTEX_BUFFER.size();					//total array size
-	bd.Usage = D3D11_USAGE_DEFAULT;				// how buffer data will be used (read/write protections for GPU/CPU)
-	bd.BindFlags = D3D11_BIND_VERTEX_BUFFER;	// What type of buffer would it be
-	bd.CPUAccessFlags = 0u;						// we don't want any cpu access for now so setting it to 0 for now
-	bd.MiscFlags = 0u;							// misscellinious flag for buffer configuration (we don't want it now either)
+	bd.Usage = D3D11_USAGE_DEFAULT;												// how buffer data will be used (read/write protections for GPU/CPU)
+	bd.BindFlags = D3D11_BIND_VERTEX_BUFFER;									// What type of buffer would it be
+	bd.CPUAccessFlags = 0u;														// we don't want any cpu access for now so setting it to 0 for now
+	bd.MiscFlags = 0u;															// misscellinious flag for buffer configuration (we don't want it now either)
 	bd.StructureByteStride = sizeof(VertexType); // Size of every vertex in the array 
 
 	//holds the data pointer that will be used in vertex buffer
@@ -46,14 +46,14 @@ void Canvas3D::UpdateCbuff()
 
 Canvas3D::Canvas3D(Window& wnd) : Halfheight(wnd.GetHeight() / 2), Halfwidth(wnd.GetWidth() / 2)
 {
-	wnd.mouse.OnMove = [this](Window& wnd) {
+	/*wnd.mouse.OnMove = [this](Window& wnd) {
 	
 		if (wnd.mouse.IsLeftPressed())
 		{
 			DrawFunction(wnd);
 		}
 	
-	};
+	};*/
 
 	wnd.keyboard.OnKeyPress = [this](auto evnt)
 	{
@@ -171,8 +171,34 @@ void Canvas3D::ClearCanvas() const
 
 void Canvas3D::PresentOnScreen() const
 {
-	ImmediateContext->Draw(VERTEX_BUFFER.size(), 0);
+	ImmediateContext->Draw(vertices, 0);
 	SwapChain->Present(1u, 0u);
+}
+
+void Canvas3D::DrawObjects(std::span<VertexType> ObjectBuffer)
+{
+	D3D11_BUFFER_DESC bd = { 0 };
+	bd.ByteWidth = sizeof(VertexType) * ObjectBuffer.size();					//total array size
+	bd.Usage = D3D11_USAGE_DEFAULT;												// how buffer data will be used (read/write protections for GPU/CPU)
+	bd.BindFlags = D3D11_BIND_VERTEX_BUFFER;									// What type of buffer would it be
+	bd.CPUAccessFlags = 0u;														// we don't want any cpu access for now so setting it to 0 for now
+	bd.MiscFlags = 0u;															// misscellinious flag for buffer configuration (we don't want it now either)
+	bd.StructureByteStride = sizeof(VertexType);								// Size of every vertex in the array 
+
+	//holds the data pointer that will be used in vertex buffer
+	
+	D3D11_SUBRESOURCE_DATA subd = { 0 };
+	subd.pSysMem = ObjectBuffer.data();											// pointer to array so that it can copy all the array data to the buffer
+
+	Microsoft::WRL::ComPtr<ID3D11Buffer> VBuffer;
+	Device->CreateBuffer(&bd, &subd, &VBuffer);
+	UINT stride = sizeof(VertexType);											// size of every vertex
+	UINT offset = 0u;															// displacement after which the actual data start (so 0 because no displacement is there)
+	
+	//statrting slot(from 0) , number of buffers(1 buffer) , pp , 
+	
+	ImmediateContext->IASetVertexBuffers(0u, 1u, VBuffer.GetAddressOf(), &stride, &offset);
+	vertices = ObjectBuffer.size();
 }
 
 std::pair<float, float> Canvas3D::GetNormalizedWindowPos(int x, int y) const

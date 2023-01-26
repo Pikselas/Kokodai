@@ -6,6 +6,20 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 {
 	Window window;
 	Canvas3D canvas(window);
+	
+	std::vector<Canvas3D::VertexType> ObjectBuffer;
+	
+	window.mouse.OnMove = [&](Window& wnd)
+	{
+		if (window.mouse.IsLeftPressed())
+		{
+			auto [x, y] = window.mouse.GetXY();
+			auto [nx, ny] = canvas.GetNormalizedWindowPos(x, y);
+			ObjectBuffer.emplace_back(nx, ny, 0.0f, 255, 255, 255, 255);
+			canvas.DrawObjects(ObjectBuffer);
+		}
+	};
+	
 	while (window.IsOpen())
 	{
 		canvas.ClearCanvas();
