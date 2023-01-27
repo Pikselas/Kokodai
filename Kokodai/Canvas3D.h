@@ -19,7 +19,7 @@ private:
 	PtrManager<IDXGISwapChain> SwapChain;
 	PtrManager<ID3D11DeviceContext> ImmediateContext;
 	PtrManager<ID3D11RenderTargetView> RenderTarget;
-	PtrManager<ID3D11DepthStencilView> DepthView;
+	PtrManager<ID3D11DepthStencilView> DepthStencilView;
 	PtrManager<ID3D11Buffer> ConstBuffer;
 private:
 	DirectX::XMMATRIX transform_matrix;

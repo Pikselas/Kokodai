@@ -8,8 +8,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	
 	std::vector<Canvas3D::VertexType> ObjectBuffer;
 	
-	//To do implement depth stencil view
-
 	window.mouse.OnMove = [&](Window& wnd)
 	{
 		if (window.mouse.IsLeftPressed())

@@ -60,7 +60,7 @@ Canvas3D::Canvas3D(Window& wnd) : Halfheight(wnd.GetHeight() / 2), Halfwidth(wnd
 	sd.BufferCount = 1;														// one back buffer -> one back and one front (double buffering)
 	sd.BufferDesc.Format = DXGI_FORMAT_B8G8R8A8_UNORM;						// this is the color format (BGRA) 
 	sd.BufferDesc.Scaling = DXGI_MODE_SCALING_UNSPECIFIED;					// not specifying any scaling because we want the renedred frame same as window size
-	sd.BufferDesc.ScanlineOrdering = DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED;  // how buffer scaning will be done for copying all to video memory
+	sd.BufferDesc.ScanlineOrdering = DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED;	// how buffer scaning will be done for copying all to video memory
 	sd.Flags = 0;															// not setting any flags
 	sd.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;						// use the buffer for render target
 	sd.OutputWindow = wnd.window_handle;
@@ -124,7 +124,46 @@ Canvas3D::Canvas3D(Window& wnd) : Halfheight(wnd.GetHeight() / 2), Halfwidth(wnd
 	Device->CreatePixelShader(blb->GetBufferPointer(), blb->GetBufferSize(), nullptr, &ps); 
 	ImmediateContext->PSSetShader(ps.Get(), nullptr, 0u);
 
-	ImmediateContext->OMSetRenderTargets(1u, RenderTarget.GetAddressOf(), nullptr);
+	//setting depth stencil
+	
+	//setting depth stencil state
+	
+	D3D11_DEPTH_STENCIL_DESC dsd = {};
+	dsd.DepthEnable = TRUE;
+	dsd.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
+	dsd.DepthFunc = D3D11_COMPARISON_LESS;
+	
+	PtrManager<ID3D11DepthStencilState> ds;
+	Device->CreateDepthStencilState(&dsd, &ds);
+	
+	ImmediateContext->OMSetDepthStencilState(ds.Get(), 1u);
+
+	//Depth stencil needs a buffer to write to
+	
+	D3D11_TEXTURE2D_DESC td = {};
+	td.Width = wnd.GetWidth();
+	td.Height = wnd.GetHeight();
+	td.MipLevels = 1u;
+	td.ArraySize = 1u;
+	td.Format = DXGI_FORMAT_D32_FLOAT;
+	td.SampleDesc.Count = 1u;
+	td.SampleDesc.Quality = 0u;
+	td.Usage = D3D11_USAGE_DEFAULT;
+	td.BindFlags = D3D11_BIND_DEPTH_STENCIL;
+	
+	PtrManager<ID3D11Texture2D> tex;
+	Device->CreateTexture2D(&td, nullptr, &tex);
+	
+	D3D11_DEPTH_STENCIL_VIEW_DESC dsvd = {};
+	dsvd.Format = DXGI_FORMAT_D32_FLOAT;
+	dsvd.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
+	dsvd.Texture2D.MipSlice = 0u;
+
+	Device->CreateDepthStencilView(tex.Get(), &dsvd, &DepthStencilView);
+
+	//Bind the render target view and depth stencil buffer to the output render pipeline
+	
+	ImmediateContext->OMSetRenderTargets(1u, RenderTarget.GetAddressOf(), DepthStencilView.Get());
 
 	D3D11_VIEWPORT vp = {};
 	vp.TopLeftX = 0;
@@ -143,7 +182,7 @@ void Canvas3D::ClearCanvas() const
 {
 	float color[] = { 0.0f , 0.0f , 0.0f , 0.0f };
 	ImmediateContext->ClearRenderTargetView(RenderTarget.Get(), color);
-	ImmediateContext->ClearDepthStencilView(DepthView.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0u);
+	ImmediateContext->ClearDepthStencilView(DepthStencilView.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0u);
 }
 
 void Canvas3D::PresentOnScreen() const
