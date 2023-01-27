@@ -40,7 +40,6 @@ private:
 	const float Halfheight;
 	const float Halfwidth;
 public:
-	void DrawFunction(Window& wnd);
 	void UpdateCbuff();
 public:
 	Canvas3D(Window& wnd);

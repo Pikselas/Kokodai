@@ -1,6 +1,5 @@
 #include"Window.h"
 #include"Canvas3D.h"
-//Winmain
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
 {
