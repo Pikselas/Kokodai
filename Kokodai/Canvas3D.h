@@ -31,16 +31,16 @@ public:
 	};
 	size_t vertices;
 private:
-	std::vector<VertexType> VERTEX_BUFFER;
-private:
-	float rot_X;
-	float rot_Y;
-	float rot_Z;
-private:
 	const float Halfheight;
 	const float Halfwidth;
-public:
+private:
+	float rot_x, rot_y, rot_z;
+	float pos_Z = 2.0f;
+private:
 	void UpdateCbuff();
+public:
+	void Rotate(const int x, const int y, const int z);
+	void Zoom(const float z);
 public:
 	Canvas3D(Window& wnd);
 public:
