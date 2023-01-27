@@ -36,8 +36,8 @@ void Canvas3D::DrawFunction(Window& wnd)
 
 void Canvas3D::UpdateCbuff()
 {
-	transform_matrix = DirectX::XMMatrixTranspose(DirectX::XMMatrixRotationRollPitchYaw(rot_X,rot_Y,rot_Z) * DirectX::XMMatrixTranslation(0.0, 0.0, 2.5f)
-		* DirectX::XMMatrixPerspectiveLH(1.0f, 3.0f / 4.0f, 1.0f, 10.0f));
+	//transform_matrix = DirectX::XMMatrixTranspose(DirectX::XMMatrixRotationRollPitchYaw(rot_X,rot_Y,rot_Z) * DirectX::XMMatrixTranslation(0.0, 0.0, 2.5f)
+		//* DirectX::XMMatrixPerspectiveLH(1.0f, 3.0f / 4.0f, 1.0f, 10.0f));
 	D3D11_MAPPED_SUBRESOURCE ms;
 	ImmediateContext->Map(ConstBuffer.Get(), 0u, D3D11_MAP_WRITE_DISCARD, 0u, &ms);
 	std::memcpy(ms.pData, &transform_matrix, sizeof(transform_matrix));
@@ -55,7 +55,14 @@ Canvas3D::Canvas3D(Window& wnd) : Halfheight(wnd.GetHeight() / 2), Halfwidth(wnd
 	
 	};*/
 
-	wnd.keyboard.OnKeyPress = [this](auto evnt)
+	wnd.mouse.OnWheel = [this,fOl = 1.0f](Window& wnd) mutable {
+		fOl -= wnd.mouse.GetWheelDelta();
+		transform_matrix = DirectX::XMMatrixTranspose(DirectX::XMMatrixRotationRollPitchYaw(rot_X, rot_Y, rot_Z) * DirectX::XMMatrixTranslation(0.0, 0.0, fOl)
+			* DirectX::XMMatrixPerspectiveLH(1.0f, 3.0f / 4.0f, 1.0f, 10.0f));
+		UpdateCbuff();
+	};
+
+	wnd.keyboard.OnKeyPress = [&](auto evnt) mutable
 	{
 		if (evnt.KEY_CODE == 'W')
 		{
@@ -125,9 +132,9 @@ Canvas3D::Canvas3D(Window& wnd) : Halfheight(wnd.GetHeight() / 2), Halfwidth(wnd
 	//creating and setting
 	Device->CreateInputLayout(ied, (UINT)std::size(ied), blb->GetBufferPointer(), blb->GetBufferSize(), &inpl);
 	ImmediateContext->IASetInputLayout(inpl.Get());
-
-	transform_matrix = DirectX::XMMatrixTranspose(DirectX::XMMatrixRotationZ(rot_X) * DirectX::XMMatrixRotationX(rot_Y) * DirectX::XMMatrixRotationY(rot_Z) * DirectX::XMMatrixTranslation(0.0, 0.0, 2.5f)
-		* DirectX::XMMatrixPerspectiveLH(1.0f, 3.0f / 4.0f, 1.0f, 10.0f));
+	
+	transform_matrix = DirectX::XMMatrixTranspose(DirectX::XMMatrixRotationZ(rot_X) * DirectX::XMMatrixRotationX(rot_Y) * DirectX::XMMatrixRotationY(rot_Z) * DirectX::XMMatrixTranslation(0.0, 0.0, 1.0f)
+		* DirectX::XMMatrixPerspectiveLH(1.0f,float(wnd.GetWidth()) / float(wnd.GetHeight()), 1.0f, 10.0f));
 
 	D3D11_BUFFER_DESC CBUFF_DESC = { 0 };
 	D3D11_SUBRESOURCE_DATA CBUFF_RES = { 0 };
@@ -151,14 +158,14 @@ Canvas3D::Canvas3D(Window& wnd) : Halfheight(wnd.GetHeight() / 2), Halfwidth(wnd
 	D3D11_VIEWPORT vp = {};
 	vp.TopLeftX = 0;
 	vp.TopLeftY = 0;
-	vp.Width = 800;  //screen height
-	vp.Height = 600; // screen width
-	vp.MaxDepth = 1; // maximum depth for z axis
-	vp.MinDepth = 0; // minimum depth for z axis
+	vp.Width = wnd.GetWidth();		//screen height
+	vp.Height = wnd.GetHeight();	// screen width
+	vp.MaxDepth = 1;				// maximum depth for z axis
+	vp.MinDepth = 0;				// minimum depth for z axis
 	ImmediateContext->RSSetViewports(1u, &vp);
 
-	//draws the vertices as a list of traingles 
-	ImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_POINTLIST);
+	//draws the vertices as a list of lines
+	ImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINELIST);
 
 }
 

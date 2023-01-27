@@ -28,12 +28,14 @@ class Window
 		private:
 			int x = -1;
 			int y = -1;
+			int wheelDelta = 0;
 		private:
 			bool LeftPressed = false;
 			bool RightPressed = false;
 		public:
 			bool IsLeftPressed() const;
 			bool IsRightPressed() const;
+			int  GetWheelDelta() const;
 			int GetX() const;
 			int GetY() const;
 			std::pair<int, int> GetXY() const;
@@ -41,6 +43,7 @@ class Window
 		public:
 			using EventHandlerType = std::function<void(Window&)>;
 			EventHandlerType OnMove				= nullptr;
+			EventHandlerType OnWheel			= nullptr;
 			EventHandlerType OnLeftPress		= nullptr;
 			EventHandlerType OnRightPress		= nullptr;
 			EventHandlerType OnLeftRelease		= nullptr;

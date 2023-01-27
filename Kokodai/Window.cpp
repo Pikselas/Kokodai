@@ -109,6 +109,15 @@ LRESULT Window::MessageHandler(HWND handle, UINT msgcode, WPARAM wparam, LPARAM 
 			 mouse.OnRightDoubleClick(*this);
 		 }
 	 break;
+	 case WM_MOUSEWHEEL:
+		 {
+			mouse.wheelDelta = GET_WHEEL_DELTA_WPARAM(wparam) / WHEEL_DELTA;
+			if (mouse.OnWheel)
+			{
+				mouse.OnWheel(*this);
+			}
+		 }
+	 break;
 	 case WM_KEYDOWN:
 	 {
 		 //if repeated then bit 30 of lparam will be true
@@ -262,6 +271,11 @@ void Window::ProcessWindowEvents()
 int Window::GetWindowCount()
 {
 	return WindowCount;
+}
+
+int Window::Mouse::GetWheelDelta() const
+{
+	return wheelDelta;
 }
 
 bool Window::Mouse::IsLeftPressed() const
