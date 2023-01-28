@@ -5,7 +5,7 @@ void Canvas3D::UpdateCbuff()
 	transform_matrix = DirectX::XMMatrixTranspose(
 		DirectX::XMMatrixRotationRollPitchYaw(rot_x, rot_y, rot_z) * 
 		DirectX::XMMatrixTranslation(0.0, 0.0, pos_Z) * 
-		DirectX::XMMatrixPerspectiveLH(1.0f, Halfwidth / Halfheight, 1.0f, 10.0f)
+		DirectX::XMMatrixPerspectiveLH(1.0f, Halfwidth / Halfheight, 1.0f, 40.0f)
 		);
 	
 	D3D11_MAPPED_SUBRESOURCE ms;
@@ -24,7 +24,7 @@ void Canvas3D::Rotate(const int x, const int y, const int z)
 
 void Canvas3D::Zoom(const float z)
 {
-	pos_Z += z;
+	pos_Z = z;
 	UpdateCbuff();
 }
 
