@@ -3,29 +3,20 @@
 void Canvas3D::UpdateCbuff()
 {
 	transform_matrix = DirectX::XMMatrixTranspose(
+		camera.GetTransformMatrix() *
+		DirectX::XMMatrixPerspectiveLH(1.0f, Halfwidth / Halfheight, 1.0f, 40.0f)
+	);
+	
+	/*transform_matrix = DirectX::XMMatrixTranspose(
 		DirectX::XMMatrixRotationRollPitchYaw(rot_x, rot_y, rot_z) * 
 		DirectX::XMMatrixTranslation(0.0, 0.0, pos_Z) * 
 		DirectX::XMMatrixPerspectiveLH(1.0f, Halfwidth / Halfheight, 1.0f, 40.0f)
-		);
+		);*/
 	
 	D3D11_MAPPED_SUBRESOURCE ms;
 	ImmediateContext->Map(ConstBuffer.Get(), 0u, D3D11_MAP_WRITE_DISCARD, 0u, &ms);
 	std::memcpy(ms.pData, &transform_matrix, sizeof(transform_matrix));
 	ImmediateContext->Unmap(ConstBuffer.Get(), 0u);
-}
-
-void Canvas3D::Rotate(const int x, const int y, const int z)
-{
-	rot_x = x * DirectX::XM_PI / 180.0f;
-	rot_y = y * DirectX::XM_PI / 180.0f;
-	rot_z = z * DirectX::XM_PI / 180.0f;
-	UpdateCbuff();
-}
-
-void Canvas3D::Zoom(const float z)
-{
-	pos_Z = z;
-	UpdateCbuff();
 }
 
 Canvas3D::Canvas3D(Window& wnd) : Halfheight(wnd.GetHeight() / 2), Halfwidth(wnd.GetWidth() / 2)
@@ -156,7 +147,7 @@ Canvas3D::Canvas3D(Window& wnd) : Halfheight(wnd.GetHeight() / 2), Halfwidth(wnd
 	ImmediateContext->RSSetViewports(1u, &vp);
 
 	//draws the vertices as a list of lines
-	ImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_POINTLIST);
+	ImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 }
 
 void Canvas3D::ClearCanvas() const
@@ -201,4 +192,43 @@ void Canvas3D::DrawObjects(std::span<VertexType> ObjectBuffer)
 std::pair<float, float> Canvas3D::GetNormalizedWindowPos(int x, int y) const
 {
 	return { (x / Halfwidth) - 1.0f,  -((y / Halfheight) - 1.0f) };
+}
+
+void Canvas3D::Camera::Transform()
+{
+	const auto Pos = DirectX::XMVector3Transform(
+		DirectX::XMVectorSet(0.0f, 0.0f, pos_z, 1.0f),
+		DirectX::XMMatrixRotationRollPitchYaw(rot_x, rot_y, 0.0f));
+	transform_matrix = DirectX::XMMatrixLookAtLH(Pos, DirectX::XMVectorZero(), DirectX::XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f)) * DirectX::XMMatrixRotationRollPitchYaw(roll, pitch, yaw);
+}
+
+Canvas3D::Camera::Camera()
+{
+	Transform();
+}
+
+void Canvas3D::Camera::Zoom(const float z)
+{
+	pos_z += z;
+	Transform();
+}
+
+void Canvas3D::Camera::RotateOrientation(const int x, const int y)
+{
+	rot_x = DirectX::XM_PI * x / 180.0f;
+	rot_y = DirectX::XM_PI * y / 180.0f;
+	Transform();
+}
+
+void Canvas3D::Camera::RotatePosition(const int x, const int y, const int z)
+{
+	roll = DirectX::XM_PI * x / 180.0f;
+	pitch = DirectX::XM_PI * y / 180.0f;
+	yaw = DirectX::XM_PI * z / 180.0f;
+	Transform();
+}
+
+const DirectX::XMMATRIX& Canvas3D::Camera::GetTransformMatrix() const
+{
+	return transform_matrix;
 }

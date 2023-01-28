@@ -30,17 +30,35 @@ public:
 		unsigned char r, g, b, a;
 	};
 	size_t vertices;
+public:
+	class Camera
+	{
+	private:
+		DirectX::XMMATRIX transform_matrix;
+	private:
+		float rot_x = 0.0f, rot_y = 0.0f;
+		float roll = 0.0f, pitch = 0.0f, yaw = 0.0f;
+		float pos_z = 2.0f;
+	private:
+		void Transform();
+	public:
+		Camera();
+	public:
+		void Zoom(const float z);
+		void RotateOrientation(const int x, const int y);
+		void RotatePosition(const int x, const int y, const int z);
+		const DirectX::XMMATRIX& GetTransformMatrix() const;
+	};
+	Camera camera;
 private:
 	const float Halfheight;
 	const float Halfwidth;
 private:
-	float rot_x, rot_y, rot_z;
-	float pos_Z = 2.0f;
-private:
-	void UpdateCbuff();
+	float rot_x, rot_y;
+	float roll, pitch, yaw;
+	float pos_z = 2.0f;
 public:
-	void Rotate(const int x, const int y, const int z);
-	void Zoom(const float z);
+	void UpdateCbuff();
 public:
 	Canvas3D(Window& wnd);
 public:
