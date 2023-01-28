@@ -1,18 +1,7 @@
 #include"Canvas3D.h"
 
-void Canvas3D::UpdateCbuff()
-{
-	transform_matrix = DirectX::XMMatrixTranspose(
-		camera.GetTransformMatrix() *
-		DirectX::XMMatrixPerspectiveLH(1.0f, Halfwidth / Halfheight, 1.0f, 40.0f)
-	);
-	
-	/*transform_matrix = DirectX::XMMatrixTranspose(
-		DirectX::XMMatrixRotationRollPitchYaw(rot_x, rot_y, rot_z) * 
-		DirectX::XMMatrixTranslation(0.0, 0.0, pos_Z) * 
-		DirectX::XMMatrixPerspectiveLH(1.0f, Halfwidth / Halfheight, 1.0f, 40.0f)
-		);*/
-	
+void Canvas3D::UpdateCbuff(DirectX::XMMATRIX transform_matrix) const
+{	
 	D3D11_MAPPED_SUBRESOURCE ms;
 	ImmediateContext->Map(ConstBuffer.Get(), 0u, D3D11_MAP_WRITE_DISCARD, 0u, &ms);
 	std::memcpy(ms.pData, &transform_matrix, sizeof(transform_matrix));
@@ -76,12 +65,14 @@ Canvas3D::Canvas3D(Window& wnd) : Halfheight(wnd.GetHeight() / 2), Halfwidth(wnd
 	Device->CreateInputLayout(ied, (UINT)std::size(ied), blb->GetBufferPointer(), blb->GetBufferSize(), &inpl);
 	ImmediateContext->IASetInputLayout(inpl.Get());
 	
-	transform_matrix = DirectX::XMMatrixTranspose(DirectX::XMMatrixRotationZ(0.0f) * DirectX::XMMatrixRotationX(0.0f) * DirectX::XMMatrixRotationY(0.0f) * DirectX::XMMatrixTranslation(0.0, 0.0, 1.0f)
-		* DirectX::XMMatrixPerspectiveLH(1.0f,float(wnd.GetWidth()) / float(wnd.GetHeight()), 1.0f, 10.0f));
-
+	const auto transform_matrix = DirectX::XMMatrixTranspose(
+		camera.GetTransformMatrix() *
+		DirectX::XMMatrixPerspectiveLH(1.0f, Halfwidth / Halfheight, 1.0f, 40.0f)
+	);
+	
 	D3D11_BUFFER_DESC CBUFF_DESC = { 0 };
 	D3D11_SUBRESOURCE_DATA CBUFF_RES = { 0 };
-	CBUFF_DESC.ByteWidth = sizeof(transform_matrix);
+	CBUFF_DESC.ByteWidth = sizeof(DirectX::XMMATRIX);
 	CBUFF_DESC.Usage = D3D11_USAGE_DYNAMIC;
 	CBUFF_DESC.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
 	CBUFF_DESC.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
@@ -159,6 +150,13 @@ void Canvas3D::ClearCanvas() const
 
 void Canvas3D::PresentOnScreen() const
 {
+	//const auto matrix = DirectX::XMMatrixTranspose(DirectX::XMMatrixTranslation(0.0f, 0.0f, 5.0f) * DirectX::XMMatrixPerspectiveLH(1.0f, 3.0f / 4.0f, 0.5f, 20.0f));
+
+	const auto matrix = DirectX::XMMatrixTranspose(
+		camera.GetTransformMatrix() *
+		DirectX::XMMatrixPerspectiveLH(1.0f, Halfwidth / Halfheight, 1.0f, 40.0f)
+		);
+	UpdateCbuff(matrix);
 	ImmediateContext->Draw(vertices, 0);
 	SwapChain->Present(1u, 0u);
 }
@@ -197,7 +195,7 @@ std::pair<float, float> Canvas3D::GetNormalizedWindowPos(int x, int y) const
 void Canvas3D::Camera::Transform()
 {
 	const auto Pos = DirectX::XMVector3Transform(
-		DirectX::XMVectorSet(0.0f, 0.0f, pos_z, 1.0f),
+		DirectX::XMVectorSet(0.0f, 0.0f, -pos_z, 1.0f),
 		DirectX::XMMatrixRotationRollPitchYaw(rot_x, rot_y, 0.0f));
 	transform_matrix = DirectX::XMMatrixLookAtLH(Pos, DirectX::XMVectorZero(), DirectX::XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f)) * DirectX::XMMatrixRotationRollPitchYaw(roll, pitch, yaw);
 }
@@ -228,7 +226,7 @@ void Canvas3D::Camera::RotatePosition(const int x, const int y, const int z)
 	Transform();
 }
 
-const DirectX::XMMATRIX& Canvas3D::Camera::GetTransformMatrix() const
+DirectX::XMMATRIX Canvas3D::Camera::GetTransformMatrix() const
 {
 	return transform_matrix;
 }

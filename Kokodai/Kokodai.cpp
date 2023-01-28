@@ -11,8 +11,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	std::vector<Canvas3D::VertexType> ObjectBuffer;
 
 	ObjectBuffer.emplace_back(0.0f, 1.0f, 0.0f, 150, 155, 215);
-	ObjectBuffer.emplace_back(1.0f, -1.0f, 0.0f, 155, 105, 201, 255);
-	ObjectBuffer.emplace_back(-1.0f, -1.0f, 0.0f, 205, 255, 215, 255);
+	ObjectBuffer.emplace_back(1.0f, -1.0f, 0.0f, 205, 255, 215);
+	ObjectBuffer.emplace_back(-1.0f, -1.0f, 0.0f, 155, 105, 201);
 
 	canvas.DrawObjects(ObjectBuffer);
 	
@@ -47,8 +47,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 	RangeButton x_rot(ui, 0, 360, 50, 10, 300, 20);
 	RangeButton y_rot(ui, 0, 360, 50, 40, 300, 20);
-	RangeButton z_rot(ui, 0, 360, 50, 70, 300, 20);
-
+	
 	RangeButton roll(ui, 0, 360, 50, 100, 300, 20);
 	RangeButton pitch(ui, 0, 360, 50, 130, 300, 20);
 	RangeButton yaw(ui, 0, 360, 50, 160, 300, 20);
@@ -63,11 +62,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	y_rot.OnSlide = [&](RangeButton& rb)
 	{
 		canvas.camera.RotateOrientation(x_rot.GetCurrentPos(), rb.GetCurrentPos());
-	};
-
-	z_rot.OnSlide = [&](RangeButton& rb)
-	{
-		canvas.camera.RotateOrientation(x_rot.GetCurrentPos(), y_rot.GetCurrentPos());
 	};
 
 	//zoom.OnSlide = [&](RangeButton& rb)
@@ -93,7 +87,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	while (window.IsOpen() && ui.IsOpen())
 	{
 		canvas.ClearCanvas();
-		canvas.UpdateCbuff();
 		canvas.PresentOnScreen();
 		Window::ProcessWindowEvents();
 	}

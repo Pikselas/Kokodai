@@ -21,8 +21,6 @@ private:
 	PtrManager<ID3D11RenderTargetView> RenderTarget;
 	PtrManager<ID3D11DepthStencilView> DepthStencilView;
 	PtrManager<ID3D11Buffer> ConstBuffer;
-private:
-	DirectX::XMMATRIX transform_matrix;
 public:
 	struct VertexType
 	{
@@ -38,7 +36,7 @@ public:
 	private:
 		float rot_x = 0.0f, rot_y = 0.0f;
 		float roll = 0.0f, pitch = 0.0f, yaw = 0.0f;
-		float pos_z = 2.0f;
+		float pos_z = 1.5f;
 	private:
 		void Transform();
 	public:
@@ -47,18 +45,14 @@ public:
 		void Zoom(const float z);
 		void RotateOrientation(const int x, const int y);
 		void RotatePosition(const int x, const int y, const int z);
-		const DirectX::XMMATRIX& GetTransformMatrix() const;
+		DirectX::XMMATRIX GetTransformMatrix() const;
 	};
 	Camera camera;
 private:
 	const float Halfheight;
 	const float Halfwidth;
 private:
-	float rot_x, rot_y;
-	float roll, pitch, yaw;
-	float pos_z = 2.0f;
-public:
-	void UpdateCbuff();
+	void UpdateCbuff(DirectX::XMMATRIX transform_matrix) const;
 public:
 	Canvas3D(Window& wnd);
 public:
