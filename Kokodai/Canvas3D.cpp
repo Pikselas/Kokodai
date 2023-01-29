@@ -10,8 +10,6 @@ void Canvas3D::UpdateCbuff(DirectX::XMMATRIX transform_matrix) const
 
 Canvas3D::Canvas3D(Window& wnd) : Halfheight(wnd.GetHeight() / 2), Halfwidth(wnd.GetWidth() / 2)
 {
-	wnd.keyboard.EnableKeyRepeat();
-
 	PtrManager<ID3D11Resource> pBackBuffer;
 	DXGI_SWAP_CHAIN_DESC sd = { 0 };
 	sd.BufferDesc.Width = 0;												// look at the window and use it's size
@@ -41,9 +39,16 @@ Canvas3D::Canvas3D(Window& wnd) : Halfheight(wnd.GetHeight() / 2), Halfwidth(wnd
 	SwapChain->GetBuffer(0, __uuidof(ID3D11Resource), &pBackBuffer);
 	Device->CreateRenderTargetView(pBackBuffer.Get(), nullptr, &RenderTarget);
 
+	char buffer[255];
+	GetModuleFileName(nullptr, buffer, 100);
+	std::filesystem::path path = buffer;
+	path = path.parent_path();
+	
+	const auto vsPath = path / "VertexShader.cso";
+
 	Microsoft::WRL::ComPtr<ID3D11VertexShader> vS;
 	Microsoft::WRL::ComPtr<ID3DBlob> blb;
-	D3DReadFileToBlob(L"VertexShader.cso", &blb);
+	D3DReadFileToBlob(vsPath.c_str(), &blb);
 	Device->CreateVertexShader(blb->GetBufferPointer(), blb->GetBufferSize(), nullptr, &vS);
 	ImmediateContext->VSSetShader(vS.Get(), nullptr, 0u); 
 	Microsoft::WRL::ComPtr<ID3D11InputLayout> inpl;
@@ -81,9 +86,11 @@ Canvas3D::Canvas3D(Window& wnd) : Halfheight(wnd.GetHeight() / 2), Halfwidth(wnd
 
 	Device->CreateBuffer(&CBUFF_DESC, &CBUFF_RES, &ConstBuffer);
 	ImmediateContext->VSSetConstantBuffers(0u, 1u, ConstBuffer.GetAddressOf());
+
+	const auto psPath = path / "PixelShader.cso";
 	
 	Microsoft::WRL::ComPtr<ID3D11PixelShader> ps;
-	D3DReadFileToBlob(L"PixelShader.cso", &blb); 
+	D3DReadFileToBlob(psPath.c_str(), &blb);
 	Device->CreatePixelShader(blb->GetBufferPointer(), blb->GetBufferSize(), nullptr, &ps); 
 	ImmediateContext->PSSetShader(ps.Get(), nullptr, 0u);
 
@@ -137,7 +144,7 @@ Canvas3D::Canvas3D(Window& wnd) : Halfheight(wnd.GetHeight() / 2), Halfwidth(wnd
 	vp.MinDepth = 0;				// minimum depth for z axis
 	ImmediateContext->RSSetViewports(1u, &vp);
 
-	//draws the vertices as a list of lines
+	//draws the vertices as a list of TRIANGLE
 	ImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 }
 
