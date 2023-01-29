@@ -2,6 +2,7 @@
 #include"Window.h"
 #include"Canvas3D.h"
 #include"RangeButton.h"
+#include"DropDownSelect.h"
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
 {
@@ -97,6 +98,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	Label(ui, "Roll", 10, 100, 30, 20);
 	Label(ui, "Pitch", 10, 130, 30, 20);
 	Label(ui, "Yaw", 10, 160, 30, 20);
+	
+	Label(ui, "Primitive", 10, 190, 70, 20);
 
 	RangeButton x_rot(ui, 0, 360, 50, 10, 300, 20);
 	RangeButton y_rot(ui, 0, 360, 50, 40, 300, 20);
@@ -106,6 +109,21 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	RangeButton roll(ui, 0, 360, 50, 100, 300, 20);
 	RangeButton pitch(ui, 0, 360, 50, 130, 300, 20);
 	RangeButton yaw(ui, 0, 360, 50, 160, 300, 20);
+
+	DropDownSelect primitive(ui, 80, 190, 100, 100);
+	primitive.AddItem("Triangle");
+	primitive.AddItem("Line");
+	primitive.AddItem("Point");
+
+	primitive.OnSelect = [&](DropDownSelect& dd)
+	{
+		if (const auto selected = dd.GetSelection(); selected == "Triangle")
+			canvas.SetPrimitiveTopology(Canvas3D::PrimitiveTopology::Triangle);
+		else if (selected == "Line")
+			canvas.SetPrimitiveTopology(Canvas3D::PrimitiveTopology::Line);
+		else if (selected == "Point")
+			canvas.SetPrimitiveTopology(Canvas3D::PrimitiveTopology::Point);
+	};
 	
 
 	x_rot.OnSlide = [&](RangeButton& rb)

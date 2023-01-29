@@ -28,6 +28,13 @@ public:
 		float x, y, z;
 		unsigned char r, g, b, a;
 	};
+public:
+	enum class PrimitiveTopology
+	{
+		Point = D3D11_PRIMITIVE_TOPOLOGY_POINTLIST,
+		Line = D3D11_PRIMITIVE_TOPOLOGY_LINESTRIP,
+		Triangle = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST,
+	};
 private:
 	std::function<void()> DrawFunc = []() {};
 public:
@@ -61,6 +68,7 @@ public:
 	std::pair<float, float> GetNormalizedWindowPos(int x, int y) const;
 	void ClearCanvas() const;
 	void PresentOnScreen() const;
+	void SetPrimitiveTopology(const PrimitiveTopology primitive) const;
 	void DrawObject(std::span<VertexType> Vertices);
 	void DrawObject(std::span<VertexType> Vertices, std::span<unsigned int> indices);
 };

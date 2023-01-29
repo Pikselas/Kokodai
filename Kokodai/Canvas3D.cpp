@@ -166,6 +166,11 @@ void Canvas3D::PresentOnScreen() const
 	SwapChain->Present(1u, 0u);
 }
 
+void Canvas3D::SetPrimitiveTopology(const PrimitiveTopology primitive) const
+{
+	ImmediateContext->IASetPrimitiveTopology(static_cast<D3D11_PRIMITIVE_TOPOLOGY>(primitive));
+}
+
 void Canvas3D::DrawObject(std::span<VertexType> Vertices)
 {
 	D3D11_BUFFER_DESC bd = { 0 };

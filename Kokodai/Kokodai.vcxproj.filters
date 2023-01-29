@@ -44,6 +44,9 @@
     <ClInclude Include="RangeButton.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="DropDownSelect.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="PixelShader.hlsl">
