@@ -27,7 +27,8 @@ public:
 		float x, y, z;
 		unsigned char r, g, b, a;
 	};
-	size_t vertices;
+private:
+	std::function<void()> DrawFunc = []() {};
 public:
 	class Camera
 	{
@@ -59,5 +60,6 @@ public:
 	std::pair<float, float> GetNormalizedWindowPos(int x, int y) const;
 	void ClearCanvas() const;
 	void PresentOnScreen() const;
-	void DrawObjects(std::span<VertexType> ObjectBuffer);
+	void DrawObject(std::span<VertexType> Vertices);
+	void DrawObject(std::span<VertexType> Vertices, std::span<unsigned int> indices);
 };

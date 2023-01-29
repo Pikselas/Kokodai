@@ -67,7 +67,7 @@ Canvas3D::Canvas3D(Window& wnd) : Halfheight(wnd.GetHeight() / 2), Halfwidth(wnd
 	
 	const auto transform_matrix = DirectX::XMMatrixTranspose(
 		camera.GetTransformMatrix() *
-		DirectX::XMMatrixPerspectiveLH(1.0f, Halfwidth / Halfheight, 1.0f, 40.0f)
+		DirectX::XMMatrixPerspectiveLH(1.0f, Halfheight / Halfwidth, 1.0f, 40.0f)
 	);
 	
 	D3D11_BUFFER_DESC CBUFF_DESC = { 0 };
@@ -150,21 +150,19 @@ void Canvas3D::ClearCanvas() const
 
 void Canvas3D::PresentOnScreen() const
 {
-	//const auto matrix = DirectX::XMMatrixTranspose(DirectX::XMMatrixTranslation(0.0f, 0.0f, 5.0f) * DirectX::XMMatrixPerspectiveLH(1.0f, 3.0f / 4.0f, 0.5f, 20.0f));
-
 	const auto matrix = DirectX::XMMatrixTranspose(
 		camera.GetTransformMatrix() *
-		DirectX::XMMatrixPerspectiveLH(1.0f, Halfwidth / Halfheight, 1.0f, 40.0f)
+		DirectX::XMMatrixPerspectiveLH(1.0f, Halfheight / Halfwidth, 1.0f, 40.0f)
 		);
 	UpdateCbuff(matrix);
-	ImmediateContext->Draw(vertices, 0);
+	DrawFunc();
 	SwapChain->Present(1u, 0u);
 }
 
-void Canvas3D::DrawObjects(std::span<VertexType> ObjectBuffer)
+void Canvas3D::DrawObject(std::span<VertexType> Vertices)
 {
 	D3D11_BUFFER_DESC bd = { 0 };
-	bd.ByteWidth = sizeof(VertexType) * ObjectBuffer.size();					// total array size
+	bd.ByteWidth = sizeof(VertexType) * Vertices.size();					// total array size
 	bd.Usage = D3D11_USAGE_DEFAULT;												// how buffer data will be used (read/write protections for GPU/CPU)
 	bd.BindFlags = D3D11_BIND_VERTEX_BUFFER;									// What type of buffer would it be
 	bd.CPUAccessFlags = 0u;														// we don't want any cpu access for now so setting it to 0 for now
@@ -174,7 +172,7 @@ void Canvas3D::DrawObjects(std::span<VertexType> ObjectBuffer)
 	//holds the data pointer that will be used in vertex buffer
 	
 	D3D11_SUBRESOURCE_DATA subd = { 0 };
-	subd.pSysMem = ObjectBuffer.data();											// pointer to array so that it can copy all the array data to the buffer
+	subd.pSysMem = Vertices.data();											// pointer to array so that it can copy all the array data to the buffer
 
 	Microsoft::WRL::ComPtr<ID3D11Buffer> VBuffer;
 	Device->CreateBuffer(&bd, &subd, &VBuffer);
@@ -184,7 +182,51 @@ void Canvas3D::DrawObjects(std::span<VertexType> ObjectBuffer)
 	//statrting slot(from 0) , number of buffers(1 buffer) , pp , 
 	
 	ImmediateContext->IASetVertexBuffers(0u, 1u, VBuffer.GetAddressOf(), &stride, &offset);
-	vertices = ObjectBuffer.size();
+	const auto DrawSize = Vertices.size();
+	DrawFunc = [this,DrawSize](){ ImmediateContext->Draw(DrawSize, 0u) ; };
+}
+
+void Canvas3D::DrawObject(std::span<VertexType> Vertices, std::span<unsigned int> indices)
+{
+	D3D11_BUFFER_DESC bd = { 0 };
+	bd.ByteWidth = sizeof(VertexType) * Vertices.size();					// total array size
+	bd.Usage = D3D11_USAGE_DEFAULT;												// how buffer data will be used (read/write protections for GPU/CPU)
+	bd.BindFlags = D3D11_BIND_VERTEX_BUFFER;									// What type of buffer would it be
+	bd.CPUAccessFlags = 0u;														// we don't want any cpu access for now so setting it to 0 for now
+	bd.MiscFlags = 0u;															// misscellinious flag for buffer configuration (we don't want it now either)
+	bd.StructureByteStride = sizeof(VertexType);								// Size of every vertex in the array 
+
+	//holds the data pointer that will be used in vertex buffer
+
+	D3D11_SUBRESOURCE_DATA subd = { 0 };
+	subd.pSysMem = Vertices.data();											// pointer to array so that it can copy all the array data to the buffer
+
+	Microsoft::WRL::ComPtr<ID3D11Buffer> VBuffer;
+	Device->CreateBuffer(&bd, &subd, &VBuffer);
+	UINT stride = sizeof(VertexType);										    // size of every vertex
+	UINT offset = 0u;														    // displacement after which the actual data start (so 0 because no displacement is there)
+
+	//statrting slot(from 0) , number of buffers(1 buffer) , pp , 
+
+	ImmediateContext->IASetVertexBuffers(0u, 1u, VBuffer.GetAddressOf(), &stride, &offset);
+
+	D3D11_BUFFER_DESC ibd = { 0 };
+	ibd.ByteWidth = sizeof(size_t) * indices.size();
+	ibd.Usage = D3D11_USAGE_DEFAULT;
+	ibd.BindFlags = D3D11_BIND_INDEX_BUFFER;
+	ibd.CPUAccessFlags = 0u;
+	ibd.MiscFlags = 0u;
+	ibd.StructureByteStride = sizeof(size_t);
+
+	D3D11_SUBRESOURCE_DATA isubd = { 0 };
+	isubd.pSysMem = indices.data();
+
+	Microsoft::WRL::ComPtr<ID3D11Buffer> IBuffer;
+	Device->CreateBuffer(&ibd, &isubd, &IBuffer);
+	
+	ImmediateContext->IASetIndexBuffer(IBuffer.Get(), DXGI_FORMAT_R32_UINT, 0u);
+	const auto IndexSize = indices.size();
+	DrawFunc = [this,IndexSize]() { ImmediateContext->DrawIndexed(IndexSize, 0u, 0u); };
 }
 
 std::pair<float, float> Canvas3D::GetNormalizedWindowPos(int x, int y) const
@@ -207,7 +249,7 @@ Canvas3D::Camera::Camera()
 
 void Canvas3D::Camera::Zoom(const float z)
 {
-	pos_z += z;
+	pos_z = z;
 	Transform();
 }
 
