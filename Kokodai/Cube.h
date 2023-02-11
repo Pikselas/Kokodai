@@ -1,7 +1,8 @@
 #pragma once
 #include"Object.h"
+
 template<typename VertexType>
-class Cube : public Object<VertexType>
+class Cube : public Object
 {
 public:
 	static constexpr VertexType Vertices[] = {
@@ -61,12 +62,10 @@ public:
 		23 , 22 , 21
 	};
 public:
-	std::span<const VertexType> GetVertices() const override
+	Cube(auto canvas)
 	{
-		return Vertices;
-	}
-	std::span<const unsigned int> GetIndices() const override
-	{
-		return Indices;
+	   m_VertexBuffer = canvas.CreateVertexBuffer(Vertices);
+	   m_IndexBuffer = canvas.CreateIndexBuffer(Indices);
+	   m_IndexCount = std::size(Indices);
 	}
 };

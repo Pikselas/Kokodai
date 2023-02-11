@@ -10,9 +10,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	Window window("Kokodai");
 	Canvas3D canvas(window);
 
-	Cube<Canvas3D::VertexType> cube;
+	Cube<Canvas3D::VertexType> cube(canvas);
 
-	canvas.DrawObject(cube.GetVertices(), cube.GetIndices());
+	canvas.DrawObject(cube);
 	
 	//ObjectBuffer.clear();
 	

@@ -10,6 +10,7 @@
 #pragma comment(lib,"D3DCompiler.lib")
 
 #include"Window.h"
+#include"Object.h"
 
 class Canvas3D
 {
@@ -71,4 +72,7 @@ public:
 	void SetPrimitiveTopology(const PrimitiveTopology primitive) const;
 	void DrawObject(std::span<const VertexType> Vertices);
 	void DrawObject(std::span<const VertexType> Vertices, std::span<const unsigned int> indices);
+	void DrawObject(const Object& obj);
+	PtrManager<ID3D11Buffer> CreateVertexBuffer(std::span<const VertexType> vertices) const;
+	PtrManager<ID3D11Buffer> CreateIndexBuffer(std::span<const unsigned int> indices) const;
 };

@@ -1,10 +1,16 @@
 #pragma once
 #include<vector>
 #include<span>
-template<typename VertexType>
+#include<d3d11.h>
 class Object
 {
-public:
-	virtual std::span<const VertexType> GetVertices() const = 0;
-	virtual std::span<const unsigned int> GetIndices() const = 0;
+	friend class Canvas3D;
+protected:
+	Microsoft::WRL::ComPtr<ID3D11Buffer> m_VertexBuffer;
+	Microsoft::WRL::ComPtr<ID3D11Buffer> m_IndexBuffer;
+protected:
+	size_t m_IndexCount = 0;
+protected:
+	auto GetVBuff() const noexcept { return m_VertexBuffer.Get(); }
+	auto GetIBuff() const noexcept { return m_IndexBuffer.Get(); }
 };
