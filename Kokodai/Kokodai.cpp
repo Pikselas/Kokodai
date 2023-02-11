@@ -71,22 +71,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 	canvas.DrawObject(ObjectBuffer, indices);
 	
-	window.mouse.OnMove = [&](Window& wnd)
-	{
-		if (window.mouse.IsLeftPressed())
-		{
-			auto [x, y] = window.mouse.GetXY();
-			auto [nx, ny] = canvas.GetNormalizedWindowPos(x, y);
-			ObjectBuffer.emplace_back(nx, ny, 0.0f, 255, 255, 255, 255);
-			canvas.DrawObject(ObjectBuffer);
-		}
-	};
-	
-	window.mouse.OnWheel = [&](Window& wnd)
-	{
-		auto delta = window.mouse.GetWheelDelta();
-		canvas.camera.Zoom(delta);
-	};
+	ObjectBuffer.clear();
 	
 	Window ui("Kokodai - control panel", 400, 400);
 	
@@ -125,7 +110,40 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 			canvas.SetPrimitiveTopology(Canvas3D::PrimitiveTopology::Point);
 	};
 	
+	float z = 1.5f;
 
+	window.mouse.OnLeftPress = [&](Window& wnd)
+	{
+		auto [x, y] = wnd.mouse.GetXY();
+		auto [nx, ny] = canvas.GetNormalizedWindowPos(x, y);
+		
+		auto pos = DirectX::XMVectorSet(nx, ny, z, 0.0f);
+		auto rot = DirectX::XMMatrixRotationRollPitchYaw(DirectX::XM_PI * x_rot.GetCurrentPos() / 180.0f, DirectX::XM_PI * y_rot.GetCurrentPos() / 180.0f, yaw.GetCurrentPos() * DirectX::XM_PI / 180.0f);
+		auto Pos2 = DirectX::XMVector3Transform(pos, rot);
+
+		nx = DirectX::XMVectorGetX(Pos2);
+		ny = DirectX::XMVectorGetY(Pos2);
+		z = DirectX::XMVectorGetZ(Pos2);
+		
+		OutputDebugStringA(("\n" + std::to_string(nx) + "," + std::to_string(ny) + "," + std::to_string(z)).c_str());
+		ObjectBuffer.emplace_back(nx , ny , z, 255, 255, 255, 255);
+		canvas.DrawObject(ObjectBuffer);
+	};
+
+	window.mouse.OnMove = [](Window& wnd)
+	{
+		if (wnd.mouse.IsLeftPressed())
+		{
+			wnd.mouse.OnLeftPress(wnd);
+		}
+	};
+
+	window.mouse.OnWheel = [&](Window& wnd)
+	{
+		auto delta = window.mouse.GetWheelDelta();
+		canvas.camera.Zoom(delta);
+	};
+	
 	x_rot.OnSlide = [&](RangeButton& rb)
 	{
 		canvas.camera.RotateOrientation(rb.GetCurrentPos(), y_rot.GetCurrentPos());

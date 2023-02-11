@@ -72,7 +72,7 @@ Canvas3D::Canvas3D(Window& wnd) : Halfheight(wnd.GetHeight() / 2), Halfwidth(wnd
 	
 	const auto transform_matrix = DirectX::XMMatrixTranspose(
 		camera.GetTransformMatrix() *
-		DirectX::XMMatrixPerspectiveLH(1.0f, Halfheight / Halfwidth, 1.0f, 40.0f)
+		DirectX::XMMatrixPerspectiveLH(1.0f, Halfwidth / Halfheight, 1.0f, 40.0f)
 	);
 	
 	D3D11_BUFFER_DESC CBUFF_DESC = { 0 };
@@ -159,7 +159,7 @@ void Canvas3D::PresentOnScreen() const
 {
 	const auto matrix = DirectX::XMMatrixTranspose(
 		camera.GetTransformMatrix() *
-		DirectX::XMMatrixPerspectiveLH(1.0f, Halfheight / Halfwidth, 1.0f, 40.0f)
+		DirectX::XMMatrixPerspectiveLH(2.0f, Halfwidth / Halfheight, 1.0f, 40.0f)
 		);
 	UpdateCbuff(matrix);
 	DrawFunc();
