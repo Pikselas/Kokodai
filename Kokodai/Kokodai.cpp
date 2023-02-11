@@ -1,6 +1,7 @@
 #include"Label.h"
 #include"Window.h"
 #include"Canvas3D.h"
+#include"Cube.h"
 #include"RangeButton.h"
 #include"DropDownSelect.h"
 
@@ -8,70 +9,12 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 {
 	Window window("Kokodai");
 	Canvas3D canvas(window);
+
+	Cube<Canvas3D::VertexType> cube;
+
+	canvas.DrawObject(cube.GetVertices(), cube.GetIndices());
 	
-	std::vector<Canvas3D::VertexType> ObjectBuffer = {
-		
-		//front
-	{-1.0f , 1.0f , -1.0f , 100 , 200 , 150},
-	{ 1.0f , 1.0f , -1.0f , 200 , 100 , 50},
-	{-1.0f , -1.0f , -1.0f , 50 , 60 , 40},
-	{ 1.0f , -1.0f , -1.0f , 100 , 120 , 130},
-
-	//left
-	{-1.0f ,1.0f , 1.0f , 200 , 0 , 10 },
-	{-1.0f ,1.0f , -1.0f , 80 , 100 , 25},
-	{-1.0f ,-1.0f , 1.0f , 220 , 190 , 34 },
-	{-1.0f ,-1.0f , -1.0f , 100 , 123 , 78},
-
-	//top
-	{-1.0f ,1.0f , 1.0f , 99 , 98 , 97},
-	{ 1.0f ,1.0f , 1.0f , 213 , 183 , 65},
-	{-1.0f ,1.0f , -1.0f ,123 , 87 , 90 },
-	{ 1.0f ,1.0f , -1.0f , 14 , 78 , 36 },
-
-	//back
-	{-1.0f , 1.0f , 1.0f , 123 , 67 , 100},
-	{ 1.0f , 1.0f , 1.0f , 220 , 78 , 13},
-	{-1.0f , -1.0f , 1.0f , 90 , 54 , 67},
-	{ 1.0f , -1.0f , 1.0f , 132 , 78 , 21},
-
-	//right
-	{1.0f ,1.0f , 1.0f , 34 , 78 , 90 },
-	{1.0f ,1.0f , -1.0f , 123 , 89 , 36 },
-	{1.0f ,-1.0f , 1.0f , 24 , 63 , 217 },
-	{1.0f ,-1.0f , -1.0f , 24 , 80 , 90 },
-
-	//bottom
-	{-1.0f ,-1.0f , -1.0f , 24 , 99 , 213},
-	{ 1.0f ,-1.0f , -1.0f , 47 , 76 , 56 },
-	{-1.0f ,-1.0f , 1.0f , 90 , 12 , 64 },
-	{ 1.0f ,-1.0f , 1.0f , 124 , 76 , 34}
-		
-	};
-
-	std::vector<unsigned int> indices = {
-		2 , 0 ,1,
-	2 , 1 ,3,
-
-	6 , 4, 5,
-	5 , 7 ,6,
-
-	10 , 8 , 9,
-	9 , 11, 10,
-
-	13 , 12 , 14,
-	14 , 15 , 13,
-
-	18 , 17 , 16,
-	19 , 17 , 18,
-
-	20 , 21 , 22,
-	23 , 22 , 21
-	};
-
-	canvas.DrawObject(ObjectBuffer, indices);
-	
-	ObjectBuffer.clear();
+	//ObjectBuffer.clear();
 	
 	Window ui("Kokodai - control panel", 400, 400);
 	
@@ -111,38 +54,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	};
 	
 	float z = 1.5f;
-
-	window.mouse.OnLeftPress = [&](Window& wnd)
-	{
-		auto [x, y] = wnd.mouse.GetXY();
-		auto [nx, ny] = canvas.GetNormalizedWindowPos(x, y);
-		
-		auto pos = DirectX::XMVectorSet(nx, ny, z, 0.0f);
-		auto rot = DirectX::XMMatrixRotationRollPitchYaw(DirectX::XM_PI * x_rot.GetCurrentPos() / 180.0f, DirectX::XM_PI * y_rot.GetCurrentPos() / 180.0f, yaw.GetCurrentPos() * DirectX::XM_PI / 180.0f);
-		auto Pos2 = DirectX::XMVector3Transform(pos, rot);
-
-		nx = DirectX::XMVectorGetX(Pos2);
-		ny = DirectX::XMVectorGetY(Pos2);
-		z = DirectX::XMVectorGetZ(Pos2);
-		
-		OutputDebugStringA(("\n" + std::to_string(nx) + "," + std::to_string(ny) + "," + std::to_string(z)).c_str());
-		ObjectBuffer.emplace_back(nx , ny , z, 255, 255, 255, 255);
-		canvas.DrawObject(ObjectBuffer);
-	};
-
-	window.mouse.OnMove = [](Window& wnd)
-	{
-		if (wnd.mouse.IsLeftPressed())
-		{
-			wnd.mouse.OnLeftPress(wnd);
-		}
-	};
-
-	window.mouse.OnWheel = [&](Window& wnd)
-	{
-		auto delta = window.mouse.GetWheelDelta();
-		canvas.camera.Zoom(delta);
-	};
 	
 	x_rot.OnSlide = [&](RangeButton& rb)
 	{

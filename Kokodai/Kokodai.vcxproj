@@ -145,8 +145,10 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Canvas3D.h" />
+    <ClInclude Include="Cube.h" />
     <ClInclude Include="DropDownSelect.h" />
     <ClInclude Include="Label.h" />
+    <ClInclude Include="Object.h" />
     <ClInclude Include="RangeButton.h" />
     <ClInclude Include="Window.h" />
     <ClInclude Include="WindowComponent.h" />

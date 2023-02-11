@@ -171,7 +171,7 @@ void Canvas3D::SetPrimitiveTopology(const PrimitiveTopology primitive) const
 	ImmediateContext->IASetPrimitiveTopology(static_cast<D3D11_PRIMITIVE_TOPOLOGY>(primitive));
 }
 
-void Canvas3D::DrawObject(std::span<VertexType> Vertices)
+void Canvas3D::DrawObject(std::span<const VertexType> Vertices)
 {
 	D3D11_BUFFER_DESC bd = { 0 };
 	bd.ByteWidth = sizeof(VertexType) * Vertices.size();					// total array size
@@ -198,7 +198,7 @@ void Canvas3D::DrawObject(std::span<VertexType> Vertices)
 	DrawFunc = [this,DrawSize](){ ImmediateContext->Draw(DrawSize, 0u) ; };
 }
 
-void Canvas3D::DrawObject(std::span<VertexType> Vertices, std::span<unsigned int> indices)
+void Canvas3D::DrawObject(std::span<const VertexType> Vertices, std::span<const unsigned int> indices)
 {
 	D3D11_BUFFER_DESC bd = { 0 };
 	bd.ByteWidth = sizeof(VertexType) * Vertices.size();					// total array size

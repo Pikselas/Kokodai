@@ -69,6 +69,6 @@ public:
 	void ClearCanvas() const;
 	void PresentOnScreen() const;
 	void SetPrimitiveTopology(const PrimitiveTopology primitive) const;
-	void DrawObject(std::span<VertexType> Vertices);
-	void DrawObject(std::span<VertexType> Vertices, std::span<unsigned int> indices);
+	void DrawObject(std::span<const VertexType> Vertices);
+	void DrawObject(std::span<const VertexType> Vertices, std::span<const unsigned int> indices);
 };
