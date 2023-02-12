@@ -146,6 +146,7 @@ Canvas3D::Canvas3D(Window& wnd) : Halfheight(wnd.GetHeight() / 2), Halfwidth(wnd
 
 	//draws the vertices as a list of TRIANGLE
 	ImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	last_time = std::chrono::steady_clock::now();
 }
 
 void Canvas3D::ClearCanvas() const
@@ -157,8 +158,13 @@ void Canvas3D::ClearCanvas() const
 
 void Canvas3D::PresentOnScreen() const
 {
+	auto TimeDist = std::chrono::duration<float>(std::chrono::steady_clock::now() - last_time);
+	auto Dst = TimeDist.count() * 0.5;
+	
+	auto ObjRotate = DirectX::XMMatrixTranslation(0.0f, 0.0f, 0.0f) * DirectX::XMMatrixRotationRollPitchYaw(Dst , Dst , Dst) * DirectX::XMMatrixTranslation(0.0f, 0.0f, 1.0f);
+	
 	const auto matrix = DirectX::XMMatrixTranspose(
-		camera.GetTransformMatrix() *
+	   ObjRotate  * camera.GetTransformMatrix() *
 		DirectX::XMMatrixPerspectiveLH(2.0f, Halfwidth / Halfheight, 1.0f, 40.0f)
 		);
 	UpdateCbuff(matrix);
