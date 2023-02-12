@@ -89,7 +89,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	{
 		canvas.ClearCanvas();
 		canvas.PresentOnScreen();
-		Window::ProcessWindowEvents();
+		Window::ProcessWindowEventsNonBlocking();
 	}
 	return 0;
 }
