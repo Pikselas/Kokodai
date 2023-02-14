@@ -157,12 +157,12 @@ void Canvas3D::ClearCanvas() const
 
 void Canvas3D::PresentOnScreen() const
 {
-	const auto matrix = DirectX::XMMatrixTranspose(
+	/*const auto matrix = DirectX::XMMatrixTranspose(
 	   ObjectTransform  * camera.GetTransformMatrix() *
 		DirectX::XMMatrixPerspectiveLH(2.0f, Halfwidth / Halfheight, 1.0f, 40.0f)
 		);
 	UpdateCbuff(matrix);
-	DrawFunc();
+	DrawFunc();*/
 	SwapChain->Present(1u, 0u);
 }
 
@@ -250,6 +250,12 @@ void Canvas3D::DrawObject(const Object& obj)
 	const auto IndexSize = obj.m_IndexCount;
 	DrawFunc = [this, IndexSize]() { ImmediateContext->DrawIndexed(IndexSize, 0u, 0u); };
 	ObjectTransform = obj.GetTansformMatrix();
+	const auto matrix = DirectX::XMMatrixTranspose(
+		ObjectTransform * camera.GetTransformMatrix() *
+		DirectX::XMMatrixPerspectiveLH(2.0f, Halfwidth / Halfheight, 1.0f, 40.0f)
+	);
+	UpdateCbuff(matrix);
+	DrawFunc();
 }
 
 Canvas3D::PtrManager<ID3D11Buffer> Canvas3D::CreateVertexBuffer(std::span<const VertexType> vertices) const

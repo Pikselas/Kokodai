@@ -111,6 +111,8 @@ class Window
 		unsigned int GetHeight() const;
 		unsigned int GetWidth() const;
 		bool IsOpen() const;
+		void Redraw() const;
+		void Update() const;
 		void ChangeTitle(const std::string& title);
 	public:
 		using EventHandler = void(&)(const HWND);

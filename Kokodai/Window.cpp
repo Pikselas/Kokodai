@@ -191,6 +191,16 @@ Window::Window(const std::string& name, int width, int height) : name(name), hei
 	}
 }
 
+void Window::Update() const
+{
+	UpdateWindow(window_handle);
+}
+
+void Window::Redraw() const
+{
+	RedrawWindow(window_handle, nullptr, nullptr, RDW_INVALIDATE | RDW_UPDATENOW);
+}
+
 Window::~Window()
 {
 	if (!Closed)

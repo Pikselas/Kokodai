@@ -10,23 +10,23 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 {
 	Window window("Kokodai");
 	Canvas3D canvas(window);
-	
+
 	Window ui("Kokodai - control panel", 400, 400);
-	
-	Label(ui, "rot-X", 10, 10,30,20);
-	Label(ui, "rot-Y",10, 40, 30, 20);
+
+	Label(ui, "rot-X", 10, 10, 30, 20);
+	Label(ui, "rot-Y", 10, 40, 30, 20);
 
 	Label(ui, "zoom", 10, 70, 35, 20);
-	
+
 	Label(ui, "Roll", 10, 100, 30, 20);
 	Label(ui, "Pitch", 10, 130, 30, 20);
 	Label(ui, "Yaw", 10, 160, 30, 20);
-	
+
 	Label(ui, "Primitive", 10, 190, 70, 20);
 
 	RangeButton x_rot(ui, 0, 360, 50, 10, 300, 20);
 	RangeButton y_rot(ui, 0, 360, 50, 40, 300, 20);
-	
+
 	RangeButton zoom(ui, 1, 10, 50, 70, 300, 20);
 
 	RangeButton roll(ui, 0, 360, 50, 100, 300, 20);
@@ -47,9 +47,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		else if (selected == "Point")
 			canvas.SetPrimitiveTopology(Canvas3D::PrimitiveTopology::Point);
 	};
-	
+
 	float z = 1.5f;
-	
+
 	x_rot.OnSlide = [&](RangeButton& rb)
 	{
 		canvas.camera.RotateOrientation(rb.GetCurrentPos(), y_rot.GetCurrentPos());
@@ -58,11 +58,11 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	{
 		canvas.camera.RotateOrientation(x_rot.GetCurrentPos(), rb.GetCurrentPos());
 	};
-	zoom.OnSlide  = [&](RangeButton& rb)
+	zoom.OnSlide = [&](RangeButton& rb)
 	{
 		canvas.camera.Zoom(rb.GetMaxPos() - rb.GetCurrentPos() + 1);
 	};
-	roll.OnSlide  = [&](RangeButton& rb)
+	roll.OnSlide = [&](RangeButton& rb)
 	{
 		canvas.camera.RotatePosition(rb.GetCurrentPos(), pitch.GetCurrentPos(), yaw.GetCurrentPos());
 	};
@@ -70,24 +70,32 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	{
 		canvas.camera.RotatePosition(roll.GetCurrentPos(), rb.GetCurrentPos(), yaw.GetCurrentPos());
 	};
-	yaw.OnSlide	  = [&](RangeButton& rb)
+	yaw.OnSlide = [&](RangeButton& rb)
 	{
 		canvas.camera.RotatePosition(roll.GetCurrentPos(), pitch.GetCurrentPos(), rb.GetCurrentPos());
 	};
 
 	Cube<Canvas3D::VertexType> cube(canvas);
-	cube.SetPosition(0.0f, 0.0f, 0.0f );
+	auto cube2 = cube;
+	cube.SetPosition(-0.8f, 0.0f, 0.0f);
+	cube2.SetPosition(0.8f, 0.0f, 0.0f);
 	std::chrono::system_clock::time_point start = std::chrono::system_clock::now();
-	
+
 	RangeButton Speed(ui, 1, 100, 50, 220, 300, 20);
-	
+
+	Label(window, "TEXT KOKO DESU_1", 335, 265, 140, 20);
+	Label(window, "TEXT KOKO DESU_2", 335, 290, 140, 20);
+
 	while (window.IsOpen() && ui.IsOpen())
 	{
 		canvas.ClearCanvas();
 		auto d = std::chrono::duration<float>(start - std::chrono::system_clock::now()).count() * (float)Speed.GetCurrentPos() / 10;
-		cube.SetRotation(d, 0.0f,0.0f);
+		cube.SetRotation(d, 0.0f, 0.0f);
+		cube2.SetRotation(0.0f, d, 0.0f);
 		canvas.DrawObject(cube);
+		canvas.DrawObject(cube2);
 		canvas.PresentOnScreen();
+		window.Redraw();
 		Window::ProcessWindowEventsNonBlocking();
 	}
 	return 0;
