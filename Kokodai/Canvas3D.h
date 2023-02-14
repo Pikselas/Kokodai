@@ -6,7 +6,6 @@
 #include<d3dcompiler.h>
 #include<DirectXMath.h>
 #include<filesystem>
-#include<chrono>
 #pragma comment(lib,"d3d11.lib")
 #pragma comment(lib,"D3DCompiler.lib")
 
@@ -39,7 +38,6 @@ public:
 	};
 private:
 	std::function<void()> DrawFunc = []() {};
-	std::chrono::steady_clock::time_point last_time;
 public:
 	class Camera
 	{
@@ -60,6 +58,8 @@ public:
 		DirectX::XMMATRIX GetTransformMatrix() const;
 	};
 	Camera camera;
+private:
+	DirectX::XMMATRIX ObjectTransform;
 private:
 	const float Halfheight;
 	const float Halfwidth;

@@ -13,14 +13,14 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="Components">
-      <UniqueIdentifier>{d38e76c1-9462-42c5-be62-f48d8d3e3d77}</UniqueIdentifier>
-    </Filter>
     <Filter Include="3D">
       <UniqueIdentifier>{f701d6ee-523d-49e2-afe4-fe5d544c4092}</UniqueIdentifier>
     </Filter>
     <Filter Include="3D\Shaders">
       <UniqueIdentifier>{a0fca5d7-67a4-4160-8b1a-28941f450c65}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="UIComponents">
+      <UniqueIdentifier>{d38e76c1-9462-42c5-be62-f48d8d3e3d77}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -39,16 +39,16 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="WindowComponent.h">
-      <Filter>Components</Filter>
+      <Filter>UIComponents</Filter>
     </ClInclude>
     <ClInclude Include="RangeButton.h">
-      <Filter>Components</Filter>
+      <Filter>UIComponents</Filter>
     </ClInclude>
     <ClInclude Include="Label.h">
-      <Filter>Components</Filter>
+      <Filter>UIComponents</Filter>
     </ClInclude>
     <ClInclude Include="DropDownSelect.h">
-      <Filter>Components</Filter>
+      <Filter>UIComponents</Filter>
     </ClInclude>
     <ClInclude Include="Object.h">
       <Filter>3D</Filter>

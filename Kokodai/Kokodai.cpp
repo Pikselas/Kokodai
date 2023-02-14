@@ -1,3 +1,4 @@
+#include<chrono>
 #include"Label.h"
 #include"Window.h"
 #include"Canvas3D.h"
@@ -9,12 +10,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 {
 	Window window("Kokodai");
 	Canvas3D canvas(window);
-
-	Cube<Canvas3D::VertexType> cube(canvas);
-
-	canvas.DrawObject(cube);
-	
-	//ObjectBuffer.clear();
 	
 	Window ui("Kokodai - control panel", 400, 400);
 	
@@ -59,35 +54,39 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	{
 		canvas.camera.RotateOrientation(rb.GetCurrentPos(), y_rot.GetCurrentPos());
 	};
-	
 	y_rot.OnSlide = [&](RangeButton& rb)
 	{
 		canvas.camera.RotateOrientation(x_rot.GetCurrentPos(), rb.GetCurrentPos());
 	};
-
-	zoom.OnSlide = [&](RangeButton& rb)
+	zoom.OnSlide  = [&](RangeButton& rb)
 	{
 		canvas.camera.Zoom(rb.GetMaxPos() - rb.GetCurrentPos() + 1);
 	};
-
-	roll.OnSlide = [&](RangeButton& rb)
+	roll.OnSlide  = [&](RangeButton& rb)
 	{
 		canvas.camera.RotatePosition(rb.GetCurrentPos(), pitch.GetCurrentPos(), yaw.GetCurrentPos());
 	};
-
 	pitch.OnSlide = [&](RangeButton& rb)
 	{
 		canvas.camera.RotatePosition(roll.GetCurrentPos(), rb.GetCurrentPos(), yaw.GetCurrentPos());
 	};
-
-	yaw.OnSlide = [&](RangeButton& rb)
+	yaw.OnSlide	  = [&](RangeButton& rb)
 	{
 		canvas.camera.RotatePosition(roll.GetCurrentPos(), pitch.GetCurrentPos(), rb.GetCurrentPos());
 	};
+
+	Cube<Canvas3D::VertexType> cube(canvas);
+	cube.SetPosition(0.0f, 0.0f, 0.0f );
+	std::chrono::system_clock::time_point start = std::chrono::system_clock::now();
+	
+	RangeButton Speed(ui, 1, 100, 50, 220, 300, 20);
 	
 	while (window.IsOpen() && ui.IsOpen())
 	{
 		canvas.ClearCanvas();
+		auto d = std::chrono::duration<float>(start - std::chrono::system_clock::now()).count() * (float)Speed.GetCurrentPos() / 10;
+		cube.SetRotation(d, 0.0f,0.0f);
+		canvas.DrawObject(cube);
 		canvas.PresentOnScreen();
 		Window::ProcessWindowEventsNonBlocking();
 	}

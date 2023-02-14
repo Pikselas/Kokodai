@@ -146,7 +146,6 @@ Canvas3D::Canvas3D(Window& wnd) : Halfheight(wnd.GetHeight() / 2), Halfwidth(wnd
 
 	//draws the vertices as a list of TRIANGLE
 	ImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-	last_time = std::chrono::steady_clock::now();
 }
 
 void Canvas3D::ClearCanvas() const
@@ -158,13 +157,8 @@ void Canvas3D::ClearCanvas() const
 
 void Canvas3D::PresentOnScreen() const
 {
-	auto TimeDist = std::chrono::duration<float>(std::chrono::steady_clock::now() - last_time);
-	auto Dst = TimeDist.count() * 0.5;
-	
-	auto ObjRotate = DirectX::XMMatrixTranslation(0.0f, 0.0f, 0.0f) * DirectX::XMMatrixRotationRollPitchYaw(Dst , Dst , Dst) * DirectX::XMMatrixTranslation(0.0f, 0.0f, 1.0f);
-	
 	const auto matrix = DirectX::XMMatrixTranspose(
-	   ObjRotate  * camera.GetTransformMatrix() *
+	   ObjectTransform  * camera.GetTransformMatrix() *
 		DirectX::XMMatrixPerspectiveLH(2.0f, Halfwidth / Halfheight, 1.0f, 40.0f)
 		);
 	UpdateCbuff(matrix);
@@ -251,10 +245,11 @@ void Canvas3D::DrawObject(const Object& obj)
 {
 	UINT stride = sizeof(VertexType);										    // size of every vertex
 	UINT offset = 0u;														    // displacement after which the actual data start (so 0 because no displacement is there)
-	ImmediateContext->IASetVertexBuffers(0u, 1u, obj.m_VertexBuffer.GetAddressOf(), &stride, &offset);
-	ImmediateContext->IASetIndexBuffer(obj.m_IndexBuffer.Get(), DXGI_FORMAT_R32_UINT, 0u);
+	ImmediateContext->IASetVertexBuffers(0u, 1u, obj.GetVBuff().GetAddressOf(), &stride, &offset);
+	ImmediateContext->IASetIndexBuffer(obj.GetIBuff().Get(), DXGI_FORMAT_R32_UINT, 0u);
 	const auto IndexSize = obj.m_IndexCount;
 	DrawFunc = [this, IndexSize]() { ImmediateContext->DrawIndexed(IndexSize, 0u, 0u); };
+	ObjectTransform = obj.GetTansformMatrix();
 }
 
 Canvas3D::PtrManager<ID3D11Buffer> Canvas3D::CreateVertexBuffer(std::span<const VertexType> vertices) const
