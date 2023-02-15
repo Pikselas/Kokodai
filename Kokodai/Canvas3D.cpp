@@ -155,7 +155,7 @@ void Canvas3D::ClearCanvas() const
 	ImmediateContext->ClearDepthStencilView(DepthStencilView.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0u);
 }
 
-void Canvas3D::PresentOnScreen() const
+void Canvas3D::PresentOnWindow() const
 {
 	/*const auto matrix = DirectX::XMMatrixTranspose(
 	   ObjectTransform  * camera.GetTransformMatrix() *

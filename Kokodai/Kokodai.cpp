@@ -94,7 +94,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		cube2.SetRotation(0.0f, d, 0.0f);
 		canvas.DrawObject(cube);
 		canvas.DrawObject(cube2);
-		canvas.PresentOnScreen();
+		canvas.PresentOnWindow();
 		window.Redraw();
 		Window::ProcessWindowEventsNonBlocking();
 	}
