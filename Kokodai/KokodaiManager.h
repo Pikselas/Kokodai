@@ -36,7 +36,7 @@ public:
 	KokodaiManager();
 	~KokodaiManager() = default;
 public:
-	void Run(std::function<void(Object& obj)> update = nullptr);
+	void Run(std::function<void(Object& obj , size_t index)> update = nullptr);
 	void Add(Object& obj);
 	Canvas3D& GetCanvas();
 	Window& GetWindow();

@@ -64,16 +64,17 @@ primitive(uiWindow, 80, 190, 100, 100)
 	};
 }
 
-void KokodaiManager::Run(std::function<void(Object& obj)> update)
+void KokodaiManager::Run(std::function<void(Object& obj , size_t index)> update)
 {
 	while (mainWindow.IsOpen() && uiWindow.IsOpen())
 	{
 		mainCanvas.ClearCanvas();
+		size_t s = 0;
 		for (const auto& obj : objects)
 		{
 			if (update)
 			{
-				update(obj);
+				update(obj, s++);
 			}
 			mainCanvas.DrawObject(obj);
 		}
