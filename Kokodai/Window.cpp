@@ -43,7 +43,6 @@ LRESULT Window::MessageHandler(HWND handle, UINT msgcode, WPARAM wparam, LPARAM 
 {
 	switch (msgcode)
 	{
-	break;
 	case WM_LBUTTONUP:
 	case WM_LBUTTONDOWN:
 	case WM_LBUTTONDBLCLK:

@@ -6,6 +6,12 @@
 #include"RangeButton.h"
 #include"DropDownSelect.h"
 
+/*
+	TODO: Make a class That manges the Canvas and UI
+	 1.Add new objects By the add function of the new class
+	 2.When a new object is added it is added to the canvas and the UI (a control section with the name of the object is added to the UI)
+*/
+
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
 {
 	Window window("Kokodai");
@@ -48,8 +54,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 			canvas.SetPrimitiveTopology(Canvas3D::PrimitiveTopology::Point);
 	};
 
-	float z = 1.5f;
-
 	x_rot.OnSlide = [&](RangeButton& rb)
 	{
 		canvas.camera.RotateOrientation(rb.GetCurrentPos(), y_rot.GetCurrentPos());
@@ -58,11 +62,11 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	{
 		canvas.camera.RotateOrientation(x_rot.GetCurrentPos(), rb.GetCurrentPos());
 	};
-	zoom.OnSlide = [&](RangeButton& rb)
+	zoom.OnSlide  = [&](RangeButton& rb)
 	{
 		canvas.camera.Zoom(rb.GetMaxPos() - rb.GetCurrentPos() + 1);
 	};
-	roll.OnSlide = [&](RangeButton& rb)
+	roll.OnSlide  = [&](RangeButton& rb)
 	{
 		canvas.camera.RotatePosition(rb.GetCurrentPos(), pitch.GetCurrentPos(), yaw.GetCurrentPos());
 	};
@@ -70,15 +74,15 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	{
 		canvas.camera.RotatePosition(roll.GetCurrentPos(), rb.GetCurrentPos(), yaw.GetCurrentPos());
 	};
-	yaw.OnSlide = [&](RangeButton& rb)
+	yaw.OnSlide   = [&](RangeButton& rb)
 	{
 		canvas.camera.RotatePosition(roll.GetCurrentPos(), pitch.GetCurrentPos(), rb.GetCurrentPos());
 	};
 
 	Cube<Canvas3D::VertexType> cube(canvas);
 	auto cube2 = cube;
-	cube.SetPosition(-0.8f, 0.0f, 0.0f);
-	cube2.SetPosition(0.8f, 0.0f, 0.0f);
+	cube.SetPosition(-0.8f, 0.0f, 5.0f);
+	cube2.SetPosition(0.8f, 5.0f, 0.0f);
 	std::chrono::system_clock::time_point start = std::chrono::system_clock::now();
 
 	RangeButton Speed(ui, 1, 100, 50, 220, 300, 20);
@@ -90,8 +94,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	{
 		canvas.ClearCanvas();
 		auto d = std::chrono::duration<float>(start - std::chrono::system_clock::now()).count() * (float)Speed.GetCurrentPos() / 10;
-		cube.SetRotation(d, 0.0f, 0.0f);
-		cube2.SetRotation(0.0f, d, 0.0f);
+		cube.RotateFixedPoint(0.0f, d, 0.0f);
+		cube.RotatePositional(-d, -d, -d);
+		cube2.RotateFixedPoint(d, 0.0f, 0.0f);
+		cube2.RotatePositional(d, d, d);
 		canvas.DrawObject(cube);
 		canvas.DrawObject(cube2);
 		canvas.PresentOnWindow();
