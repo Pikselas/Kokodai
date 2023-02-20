@@ -65,6 +65,9 @@
     <ClInclude Include="KokodaiManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Pyramid.h">
+      <Filter>3D</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="PixelShader.hlsl">

@@ -151,6 +151,7 @@
     <ClInclude Include="KokodaiManager.h" />
     <ClInclude Include="Label.h" />
     <ClInclude Include="Object.h" />
+    <ClInclude Include="Pyramid.h" />
     <ClInclude Include="RangeButton.h" />
     <ClInclude Include="Window.h" />
     <ClInclude Include="WindowComponent.h" />

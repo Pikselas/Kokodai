@@ -3,6 +3,7 @@
 #include"Window.h"
 #include"Canvas3D.h"
 #include"Cube.h"
+#include"Pyramid.h"
 #include"RangeButton.h"
 #include"DropDownSelect.h"
 #include"KokodaiManager.h"
@@ -26,12 +27,22 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	//Label(manager.GetWindow(), "TEXT WA KOKO DESU", 325 , 290, 150, 20);
 	Label(manager.GetWindow(), "Konnichiwa , Kokodai Desu. Watashi wa Annimationo UI desu.Kore systemo wa kakkoi desu", 300, 275, 200, 50);
 	auto cube = Cube<Canvas3D::VertexType>{ manager.GetCanvas() };
+	auto pyramid = Pyramid<Canvas3D::VertexType>{ manager.GetCanvas() };
 	std::mt19937 gen(std::random_device{}());
 	std::vector<std::pair<Object,Factor>> objs;
 	objs.reserve(100);
 	for (int i = 0; i < 100; i++)
 	{
-		auto obj = cube;
+		Object obj;
+		if (i % 2 == 0)
+		{
+			obj = cube;
+		}
+		else
+		{
+			obj = pyramid;
+		}
+		//obj.SetPosition(std::uniform_real_distribution<float>{-10.0f, 10.0f}(gen), 0.0f, std::uniform_real_distribution<float>{-10.0f, 10.0f}(gen));
 		obj.SetPosition(std::uniform_real_distribution<float>{-10.0f, 10.0f}(gen), std::uniform_real_distribution<float>{-10.0f, 10.0f}(gen), std::uniform_real_distribution<float>{-10.0f, 10.0f}(gen));
 		auto f = Factor{ std::uniform_real_distribution<float>{-1.0f, 1.0f}(gen), std::uniform_real_distribution<float>{-1.0f, 1.0f}(gen),std::uniform_real_distribution<float>{-1.0f, 1.0f}(gen) };
 		objs.emplace_back(obj, f);
@@ -41,6 +52,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	manager.Run([&](Object& obj , size_t index)
 		{
 			auto d = std::chrono::duration<float>(start - std::chrono::system_clock::now()).count();
+			//obj.RotatePositional(0.0f, objs[index].second.y * d, 0.0f);
 			obj.RotatePositional(objs[index].second.x * d, objs[index].second.y * d, objs[index].second.z * d);
 			obj.RotateFixedPoint(objs[index].second.x * d, objs[index].second.y * d, objs[index].second.z * d);
 		});
