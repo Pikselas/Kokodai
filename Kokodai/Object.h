@@ -2,6 +2,7 @@
 #include<vector>
 #include<span>
 #include<d3d11.h>
+#include<functional>
 class Object
 {
 	friend class Canvas3D;
@@ -30,6 +31,8 @@ protected:
 		return DirectX::XMMatrixRotationRollPitchYaw(FixedPointRotationX, FixedPointRotationY, FixedPointRotationZ) *
 			DirectX::XMMatrixTranslation(m_PositionX, m_PositionY, m_PositionZ) * DirectX::XMMatrixRotationRollPitchYaw(PositionalRotateX, PositionalRotateY, PositionalRotateZ);
 	}
+public:
+	std::function<void(Object&)> OnUpdate = nullptr;
 public:
 	void RotateFixedPoint(const float x, const float y, const float z) noexcept
 	{

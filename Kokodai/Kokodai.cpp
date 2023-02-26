@@ -30,7 +30,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	auto cube = Cube<Canvas3D::VertexType>{ manager.GetCanvas() };
 	auto pyramid = Pyramid<Canvas3D::VertexType>{ manager.GetCanvas() };
 	std::mt19937 gen(std::random_device{}());
-	std::vector<std::pair<Object,Factor>> objs;
+	auto start = std::chrono::system_clock::now();
+	std::vector<Object> objs;
 	objs.reserve(100);
 	for (int i = 0; i < 100; i++)
 	{
@@ -43,19 +44,15 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		{
 			obj = pyramid;
 		}
-		//obj.SetPosition(std::uniform_real_distribution<float>{-10.0f, 10.0f}(gen), 0.0f, std::uniform_real_distribution<float>{-10.0f, 10.0f}(gen));
 		obj.SetPosition(std::uniform_real_distribution<float>{-10.0f, 10.0f}(gen), std::uniform_real_distribution<float>{-10.0f, 10.0f}(gen), std::uniform_real_distribution<float>{-10.0f, 10.0f}(gen));
 		auto f = Factor{ std::uniform_real_distribution<float>{-1.0f, 1.0f}(gen), std::uniform_real_distribution<float>{-1.0f, 1.0f}(gen),std::uniform_real_distribution<float>{-1.0f, 1.0f}(gen) };
-		objs.emplace_back(obj, f);
-		manager.Add(objs.back().first);
-	}
-	auto start = std::chrono::system_clock::now();
-	manager.Run([&](Object& obj , size_t index)
+		obj.OnUpdate = [&,fact=f](Object& obj)
 		{
 			auto d = std::chrono::duration<float>(start - std::chrono::system_clock::now()).count();
-			//obj.RotatePositional(0.0f, objs[index].second.y * d, 0.0f);
-			//obj.RotatePositional(objs[index].second.x * d, objs[index].second.y * d, objs[index].second.z * d);
-			//obj.RotateFixedPoint(objs[index].second.x * d, objs[index].second.y * d, objs[index].second.z * d);
-		});
+			obj.RotatePositional(fact.x * d, fact.y * d, fact.z * d);
+		};
+		objs.emplace_back(obj);
+	}
+	manager.Run(objs);
 	return 0;
 }

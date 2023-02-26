@@ -127,17 +127,16 @@ primitive(uiWindow, 80, 190, 100, 100)
 	};
 }
 
-void KokodaiManager::Run(std::function<void(Object& obj , size_t index)> update)
+void KokodaiManager::Run(std::span<Object> objects)
 {
 	while (mainWindow.IsOpen() && uiWindow.IsOpen())
 	{
 		mainCanvas.ClearCanvas();
-		size_t s = 0;
-		for (const auto& obj : objects)
+		for (auto& obj : objects)
 		{
-			if (update)
+			if (obj.OnUpdate)
 			{
-				update(obj, s++);
+				obj.OnUpdate(obj);
 			}
 			mainCanvas.DrawObject(obj);
 		}
@@ -145,11 +144,6 @@ void KokodaiManager::Run(std::function<void(Object& obj , size_t index)> update)
 		mainWindow.Redraw();
 		Window::ProcessWindowEventsNonBlocking();
 	}
-}
-
-void KokodaiManager::Add(Object& obj)
-{
-	objects.emplace_back(obj);
 }
 
 Canvas3D& KokodaiManager::GetCanvas()

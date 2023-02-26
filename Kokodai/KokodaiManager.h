@@ -44,14 +44,11 @@ private:
 	TextButton zDec;
 private:
 	DropDownSelect primitive;
-private:
-	std::vector<std::reference_wrapper<Object>> objects;
 public:
 	KokodaiManager();
 	~KokodaiManager() = default;
 public:
-	void Run(std::function<void(Object& obj , size_t index)> update = nullptr);
-	void Add(Object& obj);
+	void Run(std::span<Object> objects);
 	Canvas3D& GetCanvas();
 	Window& GetWindow();
 };
