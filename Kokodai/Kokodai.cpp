@@ -1,4 +1,5 @@
 #include<chrono>
+#include<random>
 #include"Label.h"
 #include"Window.h"
 #include"Canvas3D.h"
@@ -7,7 +8,6 @@
 #include"RangeButton.h"
 #include"DropDownSelect.h"
 #include"KokodaiManager.h"
-#include<random>
 
 /*
 	TODO: 
