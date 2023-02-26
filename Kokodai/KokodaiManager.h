@@ -2,6 +2,8 @@
 #include"Label.h"
 #include"Window.h"
 #include"Canvas3D.h"
+#include"TextEntry.h"
+#include"TextButton.h"
 #include"RangeButton.h"
 #include"DropDownSelect.h"
 
@@ -16,7 +18,9 @@ private:
 private:
 	Label rotXLabel;
 	Label rotYLabel;
-	Label zoomLabel;
+	Label camXLabel;
+	Label camYLabel;
+	Label camZLabel;
 	Label rollLabel;
 	Label pitchLabel;
 	Label yawLabel;
@@ -24,10 +28,20 @@ private:
 private:
 	RangeButton xRot;
 	RangeButton yRot;
-	RangeButton zoom;
 	RangeButton roll;
 	RangeButton pitch;
 	RangeButton yaw;
+private:
+	TextEntry xCam;
+	TextEntry yCam;
+	TextEntry zCam;
+private:
+	TextButton xInc;
+	TextButton xDec;
+	TextButton yInc;
+	TextButton yDec;
+	TextButton zInc;
+	TextButton zDec;
 private:
 	DropDownSelect primitive;
 private:

@@ -46,15 +46,15 @@ public:
 	private:
 		float rot_x = 0.0f, rot_y = 0.0f;
 		float roll = 0.0f, pitch = 0.0f, yaw = 0.0f;
-		float pos_z = 1.5f;
+		float pos_x = 0.0f , pos_y = 0.0f , pos_z = 1.5f;
 	private:
 		void Transform();
 	public:
 		Camera();
 	public:
-		void Zoom(const float z);
 		void RotateOrientation(const int x, const int y);
 		void RotatePosition(const int x, const int y, const int z);
+		void SetPosition(const float x, const float y, const float z);
 		DirectX::XMMATRIX GetTransformMatrix() const;
 	};
 	Camera camera;

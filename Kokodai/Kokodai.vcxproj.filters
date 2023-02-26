@@ -68,6 +68,12 @@
     <ClInclude Include="Pyramid.h">
       <Filter>3D</Filter>
     </ClInclude>
+    <ClInclude Include="TextEntry.h">
+      <Filter>UIComponents</Filter>
+    </ClInclude>
+    <ClInclude Include="TextButton.h">
+      <Filter>UIComponents</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="PixelShader.hlsl">

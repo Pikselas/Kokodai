@@ -304,19 +304,13 @@ std::pair<float, float> Canvas3D::GetNormalizedWindowPos(int x, int y) const
 void Canvas3D::Camera::Transform()
 {
 	const auto Pos = DirectX::XMVector3Transform(
-		DirectX::XMVectorSet(0.0f, 0.0f, -pos_z, 1.0f),
+		DirectX::XMVectorSet(pos_x,pos_y, pos_z, 1.0f),
 		DirectX::XMMatrixRotationRollPitchYaw(rot_x, rot_y, 0.0f));
 	transform_matrix = DirectX::XMMatrixLookAtLH(Pos, DirectX::XMVectorZero(), DirectX::XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f)) * DirectX::XMMatrixRotationRollPitchYaw(roll, pitch, yaw);
 }
 
 Canvas3D::Camera::Camera()
 {
-	Transform();
-}
-
-void Canvas3D::Camera::Zoom(const float z)
-{
-	pos_z = z;
 	Transform();
 }
 
@@ -332,6 +326,14 @@ void Canvas3D::Camera::RotatePosition(const int x, const int y, const int z)
 	roll = DirectX::XM_PI * x / 180.0f;
 	pitch = DirectX::XM_PI * y / 180.0f;
 	yaw = DirectX::XM_PI * z / 180.0f;
+	Transform();
+}
+
+void Canvas3D::Camera::SetPosition(const float x, const float y, const float z)
+{
+	pos_x = x;
+	pos_y = y;
+	pos_z = z;
 	Transform();
 }
 

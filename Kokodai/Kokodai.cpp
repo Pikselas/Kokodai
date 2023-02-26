@@ -21,11 +21,12 @@ struct Factor
 	float z;
 };
 
+
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
 {
 	KokodaiManager manager;	
 	//Label(manager.GetWindow(), "TEXT WA KOKO DESU", 325 , 290, 150, 20);
-	Label(manager.GetWindow(), "Konnichiwa , Kokodai Desu. Watashi wa Annimationo UI desu.Kore systemo wa kakkoi desu", 300, 275, 200, 50);
+	//Label(manager.GetWindow(), "Konnichiwa , Kokodai Desu. Watashi wa Annimationo UI desu.Kore systemo wa kakkoi desu", 300, 275, 200, 50);
 	auto cube = Cube<Canvas3D::VertexType>{ manager.GetCanvas() };
 	auto pyramid = Pyramid<Canvas3D::VertexType>{ manager.GetCanvas() };
 	std::mt19937 gen(std::random_device{}());
@@ -53,8 +54,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		{
 			auto d = std::chrono::duration<float>(start - std::chrono::system_clock::now()).count();
 			//obj.RotatePositional(0.0f, objs[index].second.y * d, 0.0f);
-			obj.RotatePositional(objs[index].second.x * d, objs[index].second.y * d, objs[index].second.z * d);
-			obj.RotateFixedPoint(objs[index].second.x * d, objs[index].second.y * d, objs[index].second.z * d);
+			//obj.RotatePositional(objs[index].second.x * d, objs[index].second.y * d, objs[index].second.z * d);
+			//obj.RotateFixedPoint(objs[index].second.x * d, objs[index].second.y * d, objs[index].second.z * d);
 		});
 	return 0;
 }
