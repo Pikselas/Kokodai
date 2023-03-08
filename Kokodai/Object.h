@@ -3,7 +3,8 @@
 #include<span>
 #include<d3d11.h>
 #include<functional>
-class Object
+#include"CanvasComponent.h"
+class Object : CanvasComponent
 {
 	friend class Canvas3D;
 protected:
@@ -30,6 +31,43 @@ protected:
 	{
 		return DirectX::XMMatrixRotationRollPitchYaw(FixedPointRotationX, FixedPointRotationY, FixedPointRotationZ) *
 			DirectX::XMMatrixTranslation(m_PositionX, m_PositionY, m_PositionZ) * DirectX::XMMatrixRotationRollPitchYaw(PositionalRotateX, PositionalRotateY, PositionalRotateZ);
+	}
+public:
+	Object() = default;
+	template<typename VertexType>
+	void Set(auto& canvas, std::span<const VertexType> vertices, std::span<const unsigned int> indices)
+	{
+		D3D11_BUFFER_DESC bd = { 0 };
+		bd.ByteWidth = sizeof(VertexType) * vertices.size();						// total array size
+		bd.Usage = D3D11_USAGE_DEFAULT;												// how buffer data will be used (read/write protections for GPU/CPU)
+		bd.BindFlags = D3D11_BIND_VERTEX_BUFFER;									// What type of buffer would it be
+		bd.CPUAccessFlags = 0u;														// we don't want any cpu access for now so setting it to 0 for now
+		bd.MiscFlags = 0u;															// misscellinious flag for buffer configuration (we don't want it now either)
+		bd.StructureByteStride = sizeof(VertexType);								// Size of every vertex in the array 
+
+		//holds the data pointer that will be used in vertex buffer
+
+		D3D11_SUBRESOURCE_DATA subd = { 0 };
+		subd.pSysMem = vertices.data();											// pointer to array so that it can copy all the array data to the buffer
+
+		CallOnDevice(canvas, &ID3D11Device::CreateBuffer, &bd, &subd, &m_VertexBuffer);
+		//Device->CreateBuffer(&bd, &subd, &VBuffer);
+
+		D3D11_BUFFER_DESC ibd = { 0 };
+		ibd.ByteWidth = sizeof(size_t) * indices.size();
+		ibd.Usage = D3D11_USAGE_DEFAULT;
+		ibd.BindFlags = D3D11_BIND_INDEX_BUFFER;
+		ibd.CPUAccessFlags = 0u;
+		ibd.MiscFlags = 0u;
+		ibd.StructureByteStride = sizeof(size_t);
+
+		D3D11_SUBRESOURCE_DATA isubd = { 0 };
+		isubd.pSysMem = indices.data();
+
+		CallOnDevice(canvas, &ID3D11Device::CreateBuffer, &ibd, &isubd, &m_IndexBuffer);
+		//Device->CreateBuffer(&ibd, &isubd, &m_IndexBuffe);
+
+		m_IndexCount = indices.size();
 	}
 public:
 	std::function<void(Object&)> OnUpdate = nullptr;

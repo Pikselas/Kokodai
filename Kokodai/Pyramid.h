@@ -24,8 +24,8 @@ private:
 public:
 	Pyramid(auto canvas)
 	{
-		m_VertexBuffer = canvas.CreateVertexBuffer(Vertices);
-		m_IndexBuffer = canvas.CreateIndexBuffer(Indices);
-		m_IndexCount = std::size(Indices);
+		std::span<const VertexType> v = std::span(Vertices);
+		auto i = std::span(Indices);
+		Set(canvas, v, i);
 	}
 };

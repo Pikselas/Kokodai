@@ -174,7 +174,7 @@ void Canvas3D::SetPrimitiveTopology(const PrimitiveTopology primitive) const
 void Canvas3D::DrawObject(std::span<const VertexType> Vertices)
 {
 	D3D11_BUFFER_DESC bd = { 0 };
-	bd.ByteWidth = sizeof(VertexType) * Vertices.size();					// total array size
+	bd.ByteWidth = sizeof(VertexType) * Vertices.size();						// total array size
 	bd.Usage = D3D11_USAGE_DEFAULT;												// how buffer data will be used (read/write protections for GPU/CPU)
 	bd.BindFlags = D3D11_BIND_VERTEX_BUFFER;									// What type of buffer would it be
 	bd.CPUAccessFlags = 0u;														// we don't want any cpu access for now so setting it to 0 for now
@@ -256,44 +256,6 @@ void Canvas3D::DrawObject(const Object& obj)
 	);
 	UpdateCbuff(matrix);
 	DrawFunc();
-}
-
-Canvas3D::PtrManager<ID3D11Buffer> Canvas3D::CreateVertexBuffer(std::span<const VertexType> vertices) const
-{
-	D3D11_BUFFER_DESC bd = { 0 };
-	bd.ByteWidth = sizeof(VertexType) * vertices.size();						// total array size
-	bd.Usage = D3D11_USAGE_DEFAULT;												// how buffer data will be used (read/write protections for GPU/CPU)
-	bd.BindFlags = D3D11_BIND_VERTEX_BUFFER;									// What type of buffer would it be
-	bd.CPUAccessFlags = 0u;														// we don't want any cpu access for now so setting it to 0 for now
-	bd.MiscFlags = 0u;															// misscellinious flag for buffer configuration (we don't want it now either)
-	bd.StructureByteStride = sizeof(VertexType);								// Size of every vertex in the array 
-
-	//holds the data pointer that will be used in vertex buffer
-
-	D3D11_SUBRESOURCE_DATA subd = { 0 };
-	subd.pSysMem = vertices.data();											// pointer to array so that it can copy all the array data to the buffer
-
-	Microsoft::WRL::ComPtr<ID3D11Buffer> VBuffer;
-	Device->CreateBuffer(&bd, &subd, &VBuffer);
-	return VBuffer;
-}
-
-Canvas3D::PtrManager<ID3D11Buffer> Canvas3D::CreateIndexBuffer(std::span<const unsigned int> indices) const
-{
-	D3D11_BUFFER_DESC ibd = { 0 };
-	ibd.ByteWidth = sizeof(size_t) * indices.size();
-	ibd.Usage = D3D11_USAGE_DEFAULT;
-	ibd.BindFlags = D3D11_BIND_INDEX_BUFFER;
-	ibd.CPUAccessFlags = 0u;
-	ibd.MiscFlags = 0u;
-	ibd.StructureByteStride = sizeof(size_t);
-
-	D3D11_SUBRESOURCE_DATA isubd = { 0 };
-	isubd.pSysMem = indices.data();
-
-	Microsoft::WRL::ComPtr<ID3D11Buffer> IBuffer;
-	Device->CreateBuffer(&ibd, &isubd, &IBuffer);
-	return IBuffer;
 }
 
 std::pair<float, float> Canvas3D::GetNormalizedWindowPos(int x, int y) const

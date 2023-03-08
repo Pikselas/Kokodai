@@ -62,10 +62,10 @@ public:
 		23 , 22 , 21
 	};
 public:
-	Cube(auto canvas)
+	Cube(auto& canvas)
 	{
-	   m_VertexBuffer = canvas.CreateVertexBuffer(Vertices);
-	   m_IndexBuffer = canvas.CreateIndexBuffer(Indices);
-	   m_IndexCount = std::size(Indices);
+		std::span<const VertexType> v = std::span(Vertices);
+		auto i = std::span(Indices);
+		Set(canvas, v, i);
 	}
 };

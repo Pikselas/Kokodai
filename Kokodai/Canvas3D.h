@@ -14,6 +14,7 @@
 
 class Canvas3D
 {
+	friend class CanvasComponent;
 	template<typename t>
 	using PtrManager = Microsoft::WRL::ComPtr<t>;
 private:
@@ -75,6 +76,4 @@ public:
 	void DrawObject(std::span<const VertexType> Vertices);
 	void DrawObject(std::span<const VertexType> Vertices, std::span<const unsigned int> indices);
 	void DrawObject(const Object& obj);
-	PtrManager<ID3D11Buffer> CreateVertexBuffer(std::span<const VertexType> vertices) const;
-	PtrManager<ID3D11Buffer> CreateIndexBuffer(std::span<const unsigned int> indices) const;
 };
