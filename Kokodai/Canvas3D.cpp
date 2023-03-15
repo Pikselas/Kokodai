@@ -44,32 +44,6 @@ Canvas3D::Canvas3D(Window& wnd) : Halfheight(wnd.GetHeight() / 2), Halfwidth(wnd
 	std::filesystem::path path = buffer;
 	path = path.parent_path();
 	
-	const auto vsPath = path / "VertexShader.cso";
-
-	Microsoft::WRL::ComPtr<ID3D11VertexShader> vS;
-	Microsoft::WRL::ComPtr<ID3DBlob> blb;
-	D3DReadFileToBlob(vsPath.c_str(), &blb);
-	Device->CreateVertexShader(blb->GetBufferPointer(), blb->GetBufferSize(), nullptr, &vS);
-	ImmediateContext->VSSetShader(vS.Get(), nullptr, 0u); 
-	Microsoft::WRL::ComPtr<ID3D11InputLayout> inpl;
-	
-	//semantic name , semantic index , format , inputslot , offset , input data class , data step rate
-
-	D3D11_INPUT_ELEMENT_DESC ied[] = {
-
-		//tells that the first 3 * 4 * 8 bits = 32 * 3 = 96 bits of the vertex struct are for positions for every vertex
-		
-		{"POSITION",0,DXGI_FORMAT_R32G32B32_FLOAT,0,0,D3D11_INPUT_PER_VERTEX_DATA,0},
-		
-		//and next 3 * 1 * 8 = 24 bits are color value for each of those vertex
-		// unorm for automaticall convert 0-255 range 0.0-1.0 range
-		
-		{"COLOR",0,DXGI_FORMAT_R8G8B8A8_UNORM,0,12u,D3D11_INPUT_PER_VERTEX_DATA,0}
-	};
-	
-	Device->CreateInputLayout(ied, (UINT)std::size(ied), blb->GetBufferPointer(), blb->GetBufferSize(), &inpl);
-	ImmediateContext->IASetInputLayout(inpl.Get());
-	
 	const auto transform_matrix = DirectX::XMMatrixTranspose(
 		camera.GetTransformMatrix() *
 		DirectX::XMMatrixPerspectiveLH(1.0f, Halfwidth / Halfheight, 1.0f, 40.0f)
@@ -87,6 +61,8 @@ Canvas3D::Canvas3D(Window& wnd) : Halfheight(wnd.GetHeight() / 2), Halfwidth(wnd
 	Device->CreateBuffer(&CBUFF_DESC, &CBUFF_RES, &ConstBuffer);
 	ImmediateContext->VSSetConstantBuffers(0u, 1u, ConstBuffer.GetAddressOf());
 
+	Microsoft::WRL::ComPtr<ID3DBlob> blb;
+	
 	const auto psPath = path / "PixelShader.cso";
 	
 	Microsoft::WRL::ComPtr<ID3D11PixelShader> ps;
@@ -247,6 +223,8 @@ void Canvas3D::DrawObject(const Object& obj)
 	UINT offset = 0u;														    // displacement after which the actual data start (so 0 because no displacement is there)
 	ImmediateContext->IASetVertexBuffers(0u, 1u, obj.GetVBuff().GetAddressOf(), &stride, &offset);
 	ImmediateContext->IASetIndexBuffer(obj.GetIBuff().Get(), DXGI_FORMAT_R32_UINT, 0u);
+	ImmediateContext->VSSetShader(obj.GetVShader().Get(), nullptr, 0u);
+	ImmediateContext->IASetInputLayout(obj.GetILayout().Get());
 	const auto IndexSize = obj.m_IndexCount;
 	DrawFunc = [this, IndexSize]() { ImmediateContext->DrawIndexed(IndexSize, 0u, 0u); };
 	ObjectTransform = obj.GetTansformMatrix();

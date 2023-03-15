@@ -1,5 +1,6 @@
 #include<chrono>
 #include<random>
+#include<array>
 #include"Label.h"
 #include"Window.h"
 #include"Canvas3D.h"
@@ -8,6 +9,7 @@
 #include"RangeButton.h"
 #include"DropDownSelect.h"
 #include"KokodaiManager.h"
+#include"VertexShader.h"
 
 /*
 	TODO: 
@@ -21,14 +23,32 @@ struct Factor
 	float z;
 };
 
+auto GetProgramDirectory()
+{
+	char buffer[MAX_PATH];
+	GetModuleFileName(nullptr, buffer, 100);
+	std::filesystem::path path = buffer;
+	return path.parent_path();
+}
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
 {
 	KokodaiManager manager;	
-	//Label(manager.GetWindow(), "TEXT WA KOKO DESU", 325 , 290, 150, 20);
-	//Label(manager.GetWindow(), "Konnichiwa , Kokodai Desu. Watashi wa Annimationo UI desu.Kore systemo wa kakkoi desu", 300, 275, 200, 50);
 	auto cube = Cube<Canvas3D::VertexType>{ manager.GetCanvas() };
 	auto pyramid = Pyramid<Canvas3D::VertexType>{ manager.GetCanvas() };
+
+	std::vector<InputElemDesc> ieds
+	{ 
+		{"POSITION" , InputElemDesc::INPUT_FORMAT::FLOAT3 , 0},
+		{"COLOR" , InputElemDesc::INPUT_FORMAT::UINT4 , 12}
+	};
+	
+	const auto vsPath = GetProgramDirectory() / "VertexShader.cso";
+	VertexShader vs(manager.GetCanvas(), vsPath, ieds);
+
+	cube.SetVShader(vs);
+	pyramid.SetVShader(vs);
+
 	std::mt19937 gen(std::random_device{}());
 	auto start = std::chrono::system_clock::now();
 	std::vector<Object> objs;
