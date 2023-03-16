@@ -11,6 +11,11 @@ protected:
 	Microsoft::WRL::ComPtr<ID3D11Buffer> m_VertexBuffer;
 	Microsoft::WRL::ComPtr<ID3D11Buffer> m_IndexBuffer;
 protected:
+	Microsoft::WRL::ComPtr<ID3D11VertexShader> m_VertexShader;
+	Microsoft::WRL::ComPtr<ID3D11PixelShader> m_PixelShader;
+	Microsoft::WRL::ComPtr<ID3D11InputLayout> m_InputLayout;
+	std::optional<Microsoft::WRL::ComPtr<ID3D11Buffer>> m_ConstantBuffer;
+protected:
 	float FixedPointRotationX = 0.0f;
 	float FixedPointRotationY = 0.0f;
 	float FixedPointRotationZ = 0.0f;
@@ -27,13 +32,16 @@ protected:
 protected:
 	auto GetVBuff() const noexcept { return m_VertexBuffer; }
 	auto GetIBuff() const noexcept { return m_IndexBuffer; }
+	auto GetVShader() const noexcept { return m_VertexShader; }
+	auto GetILayout() const noexcept { return m_InputLayout; }
+	auto GetPShader() const noexcept { return m_PixelShader; }
+	auto GetCBuffer() const noexcept { return m_ConstantBuffer; }
 	auto GetTansformMatrix() const noexcept
 	{
 		return DirectX::XMMatrixRotationRollPitchYaw(FixedPointRotationX, FixedPointRotationY, FixedPointRotationZ) *
 			DirectX::XMMatrixTranslation(m_PositionX, m_PositionY, m_PositionZ) * DirectX::XMMatrixRotationRollPitchYaw(PositionalRotateX, PositionalRotateY, PositionalRotateZ);
 	}
 public:
-	Object() = default;
 	template<typename VertexType>
 	void Set(auto& canvas, std::span<const VertexType> vertices, std::span<const unsigned int> indices)
 	{
@@ -68,6 +76,19 @@ public:
 		//Device->CreateBuffer(&ibd, &isubd, &m_IndexBuffe);
 
 		m_IndexCount = indices.size();
+	}
+	void SetVShader(auto& vShader) noexcept
+	{
+		m_VertexShader = vShader.GetShader();
+		m_InputLayout = vShader.GetInputLayout();
+	}
+	void SetPShader(auto& pShader) noexcept
+	{
+		m_PixelShader = pShader.GetShader();
+	}
+	void SetCBuffer(auto& cBuffer) noexcept
+	{
+		m_ConstantBuffer = cBuffer.GetBuffer();
 	}
 public:
 	std::function<void(Object&)> OnUpdate = nullptr;

@@ -1,11 +1,11 @@
 #include"Canvas3D.h"
 
-void Canvas3D::UpdateCbuff(DirectX::XMMATRIX transform_matrix) const
+void Canvas3D::UpdateCbuff(ID3D11Buffer* CBuffer,DirectX::XMMATRIX transform_matrix) const
 {	
 	D3D11_MAPPED_SUBRESOURCE ms;
-	ImmediateContext->Map(ConstBuffer.Get(), 0u, D3D11_MAP_WRITE_DISCARD, 0u, &ms);
+	ImmediateContext->Map(CBuffer, 0u, D3D11_MAP_WRITE_DISCARD, 0u, &ms);
 	std::memcpy(ms.pData, &transform_matrix, sizeof(transform_matrix));
-	ImmediateContext->Unmap(ConstBuffer.Get(), 0u);
+	ImmediateContext->Unmap(CBuffer, 0u);
 }
 
 Canvas3D::Canvas3D(Window& wnd) : Halfheight(wnd.GetHeight() / 2), Halfwidth(wnd.GetWidth() / 2)
@@ -225,6 +225,7 @@ void Canvas3D::DrawObject(const Object& obj)
 	ImmediateContext->IASetIndexBuffer(obj.GetIBuff().Get(), DXGI_FORMAT_R32_UINT, 0u);
 	ImmediateContext->VSSetShader(obj.GetVShader().Get(), nullptr, 0u);
 	ImmediateContext->IASetInputLayout(obj.GetILayout().Get());
+	ImmediateContext->PSSetShader(obj.GetPShader().Get(), nullptr, 0u);
 	const auto IndexSize = obj.m_IndexCount;
 	DrawFunc = [this, IndexSize]() { ImmediateContext->DrawIndexed(IndexSize, 0u, 0u); };
 	ObjectTransform = obj.GetTansformMatrix();
@@ -232,7 +233,11 @@ void Canvas3D::DrawObject(const Object& obj)
 		ObjectTransform * camera.GetTransformMatrix() *
 		DirectX::XMMatrixPerspectiveLH(2.0f, Halfwidth / Halfheight, 1.0f, 40.0f)
 	);
-	UpdateCbuff(matrix);
+	if (auto cbuffer = obj.GetCBuffer())
+	{
+		ImmediateContext->VSSetConstantBuffers(0u, 1u, cbuffer->GetAddressOf());
+		UpdateCbuff(cbuffer->Get(), matrix);
+	}
 	DrawFunc();
 }
 

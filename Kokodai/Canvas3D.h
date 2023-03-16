@@ -65,7 +65,7 @@ private:
 	const float Halfheight;
 	const float Halfwidth;
 private:
-	void UpdateCbuff(DirectX::XMMATRIX transform_matrix) const;
+	void UpdateCbuff(ID3D11Buffer * CBuffer , DirectX::XMMATRIX transform_matrix) const;
 public:
 	Canvas3D(Window& wnd);
 public:
