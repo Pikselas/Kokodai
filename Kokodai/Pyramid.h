@@ -24,6 +24,7 @@ private:
 public:
 	Pyramid(auto canvas)
 	{
+		stride = sizeof(VertexType);
 		std::span<const VertexType> v = std::span(Vertices);
 		auto i = std::span(Indices);
 		Set(canvas, v, i);

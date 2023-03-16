@@ -39,37 +39,6 @@ Canvas3D::Canvas3D(Window& wnd) : Halfheight(wnd.GetHeight() / 2), Halfwidth(wnd
 	SwapChain->GetBuffer(0, __uuidof(ID3D11Resource), &pBackBuffer);
 	Device->CreateRenderTargetView(pBackBuffer.Get(), nullptr, &RenderTarget);
 
-	char buffer[255];
-	GetModuleFileName(nullptr, buffer, 100);
-	std::filesystem::path path = buffer;
-	path = path.parent_path();
-	
-	const auto transform_matrix = DirectX::XMMatrixTranspose(
-		camera.GetTransformMatrix() *
-		DirectX::XMMatrixPerspectiveLH(1.0f, Halfwidth / Halfheight, 1.0f, 40.0f)
-	);
-	
-	D3D11_BUFFER_DESC CBUFF_DESC = { 0 };
-	D3D11_SUBRESOURCE_DATA CBUFF_RES = { 0 };
-	CBUFF_DESC.ByteWidth = sizeof(DirectX::XMMATRIX);
-	CBUFF_DESC.Usage = D3D11_USAGE_DYNAMIC;
-	CBUFF_DESC.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-	CBUFF_DESC.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-
-	CBUFF_RES.pSysMem = &transform_matrix;
-
-	Device->CreateBuffer(&CBUFF_DESC, &CBUFF_RES, &ConstBuffer);
-	ImmediateContext->VSSetConstantBuffers(0u, 1u, ConstBuffer.GetAddressOf());
-
-	Microsoft::WRL::ComPtr<ID3DBlob> blb;
-	
-	const auto psPath = path / "PixelShader.cso";
-	
-	Microsoft::WRL::ComPtr<ID3D11PixelShader> ps;
-	D3DReadFileToBlob(psPath.c_str(), &blb);
-	Device->CreatePixelShader(blb->GetBufferPointer(), blb->GetBufferSize(), nullptr, &ps); 
-	ImmediateContext->PSSetShader(ps.Get(), nullptr, 0u);
-
 	//setting depth stencil
 	
 	//setting depth stencil state
@@ -219,9 +188,8 @@ void Canvas3D::DrawObject(std::span<const VertexType> Vertices, std::span<const 
 
 void Canvas3D::DrawObject(const Object& obj)
 {
-	UINT stride = sizeof(VertexType);										    // size of every vertex
 	UINT offset = 0u;														    // displacement after which the actual data start (so 0 because no displacement is there)
-	ImmediateContext->IASetVertexBuffers(0u, 1u, obj.GetVBuff().GetAddressOf(), &stride, &offset);
+	ImmediateContext->IASetVertexBuffers(0u, 1u, obj.GetVBuff().GetAddressOf(), &obj.stride, &offset);
 	ImmediateContext->IASetIndexBuffer(obj.GetIBuff().Get(), DXGI_FORMAT_R32_UINT, 0u);
 	ImmediateContext->VSSetShader(obj.GetVShader().Get(), nullptr, 0u);
 	ImmediateContext->IASetInputLayout(obj.GetILayout().Get());
@@ -237,6 +205,11 @@ void Canvas3D::DrawObject(const Object& obj)
 	{
 		ImmediateContext->VSSetConstantBuffers(0u, 1u, cbuffer->GetAddressOf());
 		UpdateCbuff(cbuffer->Get(), matrix);
+	}
+	if (auto texture = obj.GetTexture())
+	{
+		ImmediateContext->PSSetSamplers(0u, 1u, texture->first.GetAddressOf());
+		ImmediateContext->PSSetShaderResources(0u, 1u, texture->second.GetAddressOf());
 	}
 	DrawFunc();
 }

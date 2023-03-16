@@ -15,6 +15,7 @@ protected:
 	Microsoft::WRL::ComPtr<ID3D11PixelShader> m_PixelShader;
 	Microsoft::WRL::ComPtr<ID3D11InputLayout> m_InputLayout;
 	std::optional<Microsoft::WRL::ComPtr<ID3D11Buffer>> m_ConstantBuffer;
+	std::optional<std::pair<Microsoft::WRL::ComPtr<ID3D11SamplerState>, Microsoft::WRL::ComPtr<ID3D11ShaderResourceView>>> m_Texture;
 protected:
 	float FixedPointRotationX = 0.0f;
 	float FixedPointRotationY = 0.0f;
@@ -29,6 +30,7 @@ protected:
 	float m_PositionZ = 0.0f;
 protected:
 	size_t m_IndexCount = 0;
+	unsigned int stride = 0;
 protected:
 	auto GetVBuff() const noexcept { return m_VertexBuffer; }
 	auto GetIBuff() const noexcept { return m_IndexBuffer; }
@@ -36,6 +38,7 @@ protected:
 	auto GetILayout() const noexcept { return m_InputLayout; }
 	auto GetPShader() const noexcept { return m_PixelShader; }
 	auto GetCBuffer() const noexcept { return m_ConstantBuffer; }
+	auto GetTexture() const noexcept { return m_Texture; }
 	auto GetTansformMatrix() const noexcept
 	{
 		return DirectX::XMMatrixRotationRollPitchYaw(FixedPointRotationX, FixedPointRotationY, FixedPointRotationZ) *
@@ -89,6 +92,10 @@ public:
 	void SetCBuffer(auto& cBuffer) noexcept
 	{
 		m_ConstantBuffer = cBuffer.GetBuffer();
+	}
+	void SetTexture(auto& texture) noexcept
+	{
+		m_Texture = std::make_pair(texture.GetSampler(), texture.GetTextureView());
 	}
 public:
 	std::function<void(Object&)> OnUpdate = nullptr;

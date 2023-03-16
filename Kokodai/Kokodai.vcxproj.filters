@@ -36,6 +36,12 @@
     <ClCompile Include="KokodaiManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Image.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GDIPlusManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Window.h">
@@ -52,9 +58,6 @@
     </ClInclude>
     <ClInclude Include="DropDownSelect.h">
       <Filter>UIComponents</Filter>
-    </ClInclude>
-    <ClInclude Include="Object.h">
-      <Filter>3D</Filter>
     </ClInclude>
     <ClInclude Include="Canvas3D.h">
       <Filter>3D</Filter>
@@ -74,12 +77,45 @@
     <ClInclude Include="TextButton.h">
       <Filter>UIComponents</Filter>
     </ClInclude>
+    <ClInclude Include="Image.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GDIPlusManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CanvasComponent.h">
+      <Filter>3D</Filter>
+    </ClInclude>
+    <ClInclude Include="Object.h">
+      <Filter>3D</Filter>
+    </ClInclude>
+    <ClInclude Include="Texture.h">
+      <Filter>3D</Filter>
+    </ClInclude>
+    <ClInclude Include="VertexShader.h">
+      <Filter>3D</Filter>
+    </ClInclude>
+    <ClInclude Include="PixelShader.h">
+      <Filter>3D</Filter>
+    </ClInclude>
+    <ClInclude Include="ConstantBuffer.h">
+      <Filter>3D</Filter>
+    </ClInclude>
+    <ClInclude Include="PaperTex.h">
+      <Filter>3D</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="PixelShader.hlsl">
       <Filter>3D\Shaders</Filter>
     </FxCompile>
     <FxCompile Include="VertexShader.hlsl">
+      <Filter>3D\Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="TextureVS.hlsl">
+      <Filter>3D\Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="TexturePS.hlsl">
       <Filter>3D\Shaders</Filter>
     </FxCompile>
   </ItemGroup>

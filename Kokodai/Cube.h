@@ -64,6 +64,7 @@ public:
 public:
 	Cube(auto& canvas)
 	{
+		stride = sizeof(VertexType);
 		auto v = std::span<const VertexType>(Vertices);
 		auto i = std::span(Indices);
 		Set(canvas, v, i);
