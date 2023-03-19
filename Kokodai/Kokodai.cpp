@@ -82,7 +82,11 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	ConstantBuffer cb(manager.GetCanvas(), sizeof(DirectX::XMMATRIX));
 
 	Image img("D:/wallpaperflare-cropped.jpg");
-	Texture tex(manager.GetCanvas(), img);
+	Image img2("D:/CoderWallp/15010691518231.png");
+	
+	auto imgPntr = &img;
+	
+	Texture tex(manager.GetCanvas(), *imgPntr);
 	
 	paper.SetVShader(vs);
 	paper.SetPShader(ps);
@@ -93,6 +97,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	auto start = std::chrono::system_clock::now();
 	std::vector<Object> objs;
 	objs.reserve(100);
+	auto count = 0u;
 	for (int i = 0; i < 100; i++)
 	{
 		Object obj;
@@ -110,6 +115,11 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		{
 			auto d = std::chrono::duration<float>(start - std::chrono::system_clock::now()).count();
 			obj.RotatePositional(fact.x * d, fact.y * d, fact.z * d);
+			if (++count % 5000 == 0)
+			{
+				tex.SetImage(*imgPntr);
+				imgPntr = imgPntr == &img ? &img2 : &img;
+			}
 		};
 		objs.emplace_back(obj);
 	}

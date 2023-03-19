@@ -13,12 +13,17 @@ private:
 	Microsoft::WRL::ComPtr<ID3D11Texture2D> TEXTURE;
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> TEXTURE_VIEW;
 	Microsoft::WRL::ComPtr<ID3D11SamplerState> SAMPLER;
+private:
+	const Canvas3D& cnvs;
+private:
+	size_t width;
+	size_t height;
 public:
-	Texture(const Canvas3D& canvas, const Image& img)
+	Texture(const Canvas3D& canvas, const Image& img) : cnvs(canvas), width(img.GetWidth()), height(img.GetHeight())
 	{
 		D3D11_TEXTURE2D_DESC desc = {};
-		desc.Width = img.GetWidth();
-		desc.Height = img.GetHeight();
+		desc.Width = width;
+		desc.Height = height;
 		desc.MipLevels = 1;
 		desc.ArraySize = 1;
 		desc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
@@ -29,7 +34,7 @@ public:
 		desc.MiscFlags = 0;
 		D3D11_SUBRESOURCE_DATA subresource_data = {};
 		subresource_data.pSysMem = img.GetRaw();
-		subresource_data.SysMemPitch = img.GetWidth() * sizeof(ColorType);
+		subresource_data.SysMemPitch = width * sizeof(ColorType);
 		subresource_data.SysMemSlicePitch = 0;
 		CallOnDevice(canvas, &ID3D11Device::CreateTexture2D, &desc, &subresource_data, &TEXTURE);
 		CallOnDevice(canvas, &ID3D11Device::CreateShaderResourceView, TEXTURE.Get(), nullptr, &TEXTURE_VIEW);
@@ -42,6 +47,28 @@ public:
 		sampler_desc.MinLOD = 0;
 		sampler_desc.MaxLOD = D3D11_FLOAT32_MAX;
 		CallOnDevice(canvas, &ID3D11Device::CreateSamplerState, &sampler_desc, &SAMPLER);
+	}
+	auto SetImage(const Image& img)
+	{
+		/*
+		*  Only updates the portion of the texture that is covered by the image.
+		*	(i.e if the image is smaller than the texture, the rest of the texture is not updated)
+		*/
+		D3D11_BOX dst_box = {};
+		dst_box.left = 0;
+		dst_box.top = 0;
+		dst_box.front = 0;
+		dst_box.right = img.GetWidth() < width ? img.GetWidth() : width;
+		dst_box.bottom = img.GetHeight() < height ? img.GetHeight() : height;
+		dst_box.back = 1;
+		
+		D3D11_TEXTURE2D_DESC desc = {};
+		TEXTURE->GetDesc(&desc);
+		D3D11_SUBRESOURCE_DATA subresource_data = {};
+		subresource_data.pSysMem = img.GetRaw();
+		subresource_data.SysMemPitch = img.GetWidth() * sizeof(ColorType);
+		subresource_data.SysMemSlicePitch = 0;
+		CallOnContext(cnvs, &ID3D11DeviceContext::UpdateSubresource, TEXTURE.Get(), 0, &dst_box, img.GetRaw(), subresource_data.SysMemPitch, subresource_data.SysMemSlicePitch);
 	}
 	auto GetTextureView() const
 	{
