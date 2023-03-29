@@ -8,26 +8,33 @@ Image::Image(const std::filesystem::path& file)
 	{
 		height = bitmap.GetHeight();
 		width = bitmap.GetWidth();
-		PIXEL_DATA = std::make_unique<ColorType[]>(height * width);
+		PIXEL_DATA = std::make_unique<ColorType[]>(width * height);
 		Gdiplus::Color c;
 		for (auto i = 0; i < height; ++i)
 		{
 			for (auto j = 0; j < width; ++j)
 			{
 				bitmap.GetPixel(j, i, &c);
-				const auto indx = width * i + j;
-				PIXEL_DATA[width * i + j] = { c.GetR() , c.GetG() , c.GetB() };
+				ColorType color = { c.GetR() , c.GetG() , c.GetB() };
+				SetPixel(j, i, color);
 			}
 		}
 	}
 }
 
-size_t Image::GetHeight() const
+Image::Image(unsigned int width,unsigned int height)
+{
+	this->width = width;
+	this->height = height;
+	PIXEL_DATA = std::make_unique<ColorType[]>(width * height);
+}
+
+unsigned int Image::GetHeight() const
 {
     return height;
 }
 
-size_t Image::GetWidth() const 
+unsigned int Image::GetWidth() const 
 {
     return width;
 }

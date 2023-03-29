@@ -2,6 +2,8 @@
 #include<vector>
 #include<span>
 #include<d3d11.h>
+#include<wrl.h>
+#include<DirectXMath.h>
 #include<functional>
 #include"CanvasComponent.h"
 class Object : CanvasComponent

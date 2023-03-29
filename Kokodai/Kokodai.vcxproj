@@ -164,6 +164,7 @@
     <ClInclude Include="TextButton.h" />
     <ClInclude Include="TextEntry.h" />
     <ClInclude Include="Texture.h" />
+    <ClInclude Include="TexturedCube.h" />
     <ClInclude Include="VertexShader.h" />
     <ClInclude Include="Window.h" />
     <ClInclude Include="WindowComponent.h" />

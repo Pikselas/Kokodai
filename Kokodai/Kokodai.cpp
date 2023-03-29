@@ -1,19 +1,14 @@
 #include<chrono>
 #include<random>
-#include<array>
-#include"Label.h"
-#include"Window.h"
-#include"Canvas3D.h"
 #include"Cube.h"
 #include"Pyramid.h"
-#include"RangeButton.h"
-#include"DropDownSelect.h"
-#include"KokodaiManager.h"
-#include"VertexShader.h"
-#include"PixelShader.h"
-#include"ConstantBuffer.h"
 #include"Texture.h"
 #include"PaperTex.h"
+#include"TexturedCube.h"
+#include"PixelShader.h"
+#include"VertexShader.h"
+#include"ConstantBuffer.h"
+#include"KokodaiManager.h"
 
 /*
 	TODO: 
@@ -65,7 +60,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	cube.SetCBuffer(cb);
 	pyramid.SetCBuffer(cb);*/
 	
-	auto paper = PaperTex(manager.GetCanvas());
+	auto paper = TexturedCube(manager.GetCanvas());
 	std::vector<InputElemDesc> ieds
 	{
 		{"POSITION" , InputElemDesc::INPUT_FORMAT::FLOAT3 , 0},
@@ -82,12 +77,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	ConstantBuffer cb(manager.GetCanvas(), sizeof(DirectX::XMMATRIX));
 
 	Image img("D:/wallpaperflare-cropped.jpg");
-	Image img2("D:/CoderWallp/15010691518231.png");
-	
-	auto imgPntr = &img;
-	
-	Texture tex(manager.GetCanvas(), *imgPntr);
-	
+	Texture tex(manager.GetCanvas(), img);
+
 	paper.SetVShader(vs);
 	paper.SetPShader(ps);
 	paper.SetCBuffer(cb);
@@ -98,31 +89,21 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	std::vector<Object> objs;
 	objs.reserve(100);
 	auto count = 0u;
+
 	for (int i = 0; i < 100; i++)
 	{
-		Object obj;
-		if (i % 2 == 0)
-		{
-			obj = paper;
-		}
-		else
-		{
-			obj = paper;
-		}
+		Object obj = paper;
 		obj.SetPosition(std::uniform_real_distribution<float>{-10.0f, 10.0f}(gen), std::uniform_real_distribution<float>{-10.0f, 10.0f}(gen), std::uniform_real_distribution<float>{-10.0f, 10.0f}(gen));
 		auto f = Factor{ std::uniform_real_distribution<float>{-1.0f, 1.0f}(gen), std::uniform_real_distribution<float>{-1.0f, 1.0f}(gen),std::uniform_real_distribution<float>{-1.0f, 1.0f}(gen) };
 		obj.OnUpdate = [&,fact=f](Object& obj)
 		{
-			auto d = std::chrono::duration<float>(start - std::chrono::system_clock::now()).count();
-			obj.RotatePositional(fact.x * d, fact.y * d, fact.z * d);
-			if (++count % 5000 == 0)
-			{
-				tex.SetImage(*imgPntr);
-				imgPntr = imgPntr == &img ? &img2 : &img;
-			}
+			//auto d = std::chrono::duration<float>(start - std::chrono::system_clock::now()).count();
+			//obj.RotatePositional(fact.x * d, fact.y * d, fact.z * d);
+			//obj.RotateFixedPoint(fact.x * d, fact.y * d, fact.z * d);
 		};
 		objs.emplace_back(obj);
 	}
+
 	manager.Run(objs);
 	return 0;
 }
