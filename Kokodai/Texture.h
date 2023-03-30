@@ -26,15 +26,18 @@ public:
 		desc.Height = height;
 		desc.MipLevels = 1;
 		desc.ArraySize = 1;
-		desc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+		desc.Format = DXGI_FORMAT_B8G8R8A8_UNORM;
 		desc.SampleDesc.Count = 1;
 		desc.Usage = D3D11_USAGE_DEFAULT;
 		desc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
 		desc.CPUAccessFlags = 0;
 		desc.MiscFlags = 0;
 		D3D11_SUBRESOURCE_DATA subresource_data = {};
-		subresource_data.pSysMem = img.GetRaw();
-		subresource_data.SysMemPitch = width * sizeof(ColorType);
+
+		auto data = img.Raw();
+		subresource_data.pSysMem = data;
+		subresource_data.SysMemPitch = sizeof(*data) * width;
+
 		subresource_data.SysMemSlicePitch = 0;
 		CallOnDevice(canvas, &ID3D11Device::CreateTexture2D, &desc, &subresource_data, &TEXTURE);
 		CallOnDevice(canvas, &ID3D11Device::CreateShaderResourceView, TEXTURE.Get(), nullptr, &TEXTURE_VIEW);
@@ -65,10 +68,11 @@ public:
 		D3D11_TEXTURE2D_DESC desc = {};
 		TEXTURE->GetDesc(&desc);
 		D3D11_SUBRESOURCE_DATA subresource_data = {};
-		subresource_data.pSysMem = img.GetRaw();
-		subresource_data.SysMemPitch = img.GetWidth() * sizeof(ColorType);
+		auto data = img.Raw();
+		subresource_data.pSysMem = data;
+		subresource_data.SysMemPitch = img.GetWidth() * sizeof(*data);
 		subresource_data.SysMemSlicePitch = 0;
-		CallOnContext(cnvs, &ID3D11DeviceContext::UpdateSubresource, TEXTURE.Get(), 0, &dst_box, img.GetRaw(), subresource_data.SysMemPitch, subresource_data.SysMemSlicePitch);
+		CallOnContext(cnvs, &ID3D11DeviceContext::UpdateSubresource, TEXTURE.Get(), 0, &dst_box, data, subresource_data.SysMemPitch, subresource_data.SysMemSlicePitch);
 	}
 	auto GetTextureView() const
 	{
