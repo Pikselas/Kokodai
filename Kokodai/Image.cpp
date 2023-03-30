@@ -45,6 +45,13 @@ void Image::SetPixel(unsigned int x, unsigned int y, ColorType color)
 	bitmap.SetPixel(x, y, Gdiplus::Color(color.a, color.r, color.g, color.b));
 }
 
+void Image::DrawLine(unsigned int x1, unsigned int y1, unsigned int x2, unsigned int y2, ColorType color)
+{
+	Gdiplus::Graphics graphics(&bitmap);
+	Gdiplus::Pen pen(Gdiplus::Color(color.a, color.r, color.g, color.b));
+	graphics.DrawLine(&pen, (int)x1, (int)y1, (int)x2, (int)y2);
+}
+
 const ColorType* Image::Raw() const
 {
 	Gdiplus::BitmapData data;

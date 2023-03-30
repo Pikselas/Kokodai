@@ -26,5 +26,6 @@ public:
 	unsigned int GetWidth() const;
 	ColorType GetPixel(unsigned int x , unsigned int y) const;
 	void SetPixel(unsigned int x, unsigned int y, ColorType color);
+	void DrawLine(unsigned int x1, unsigned int y1, unsigned int x2, unsigned int y2, ColorType color);
 	const ColorType* Raw() const;
 };
