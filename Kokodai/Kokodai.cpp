@@ -1,5 +1,7 @@
 #include<chrono>
 #include<random>
+#include<typeindex>
+#include<map>
 #include"Cube.h"
 #include"Pyramid.h"
 #include"Texture.h"
@@ -30,60 +32,66 @@ auto GetProgramDirectory()
 	return path.parent_path();
 }
 
+template<typename T>
+concept ObjectT = std::is_base_of_v<Object,T>;
+
+template<ObjectT ObjT>
+Object BuildObject(Canvas3D& cnv)
+{
+	static std::map<std::pair<Canvas3D*,std::type_index>,Object> objects;
+	auto ObjComb = std::make_pair(&cnv, std::type_index(typeid(ObjT)));
+	if (objects.find(ObjComb) == objects.end())
+	{
+		if constexpr (std::is_same_v<ObjT, Cube<Canvas3D::VertexType>>)
+		{
+			Cube<Canvas3D::VertexType> cube{ cnv };
+			std::vector<InputElemDesc> ieds
+			{
+				{"POSITION" , InputElemDesc::INPUT_FORMAT::FLOAT3 , 0},
+				{"COLOR" , InputElemDesc::INPUT_FORMAT::UINT4 , 12}
+			};
+			const auto programDir = GetProgramDirectory();
+			const auto vsPath = programDir / "VertexShader.cso";
+			const auto psPath = programDir / "PixelShader.cso";
+			VertexShader vs(cnv, vsPath, ieds);
+			PixelShader ps(cnv, psPath);
+			ConstantBuffer cb(cnv, sizeof(DirectX::XMMATRIX));
+			cube.SetVShader(vs);
+			cube.SetPShader(ps);
+			cube.SetCBuffer(cb);
+			objects[ObjComb] = cube;
+			return cube;
+		}
+		else if constexpr (std::is_same_v<ObjT, TexturedCube>)
+		{
+			TexturedCube cube{ cnv };
+			std::vector<InputElemDesc> ieds
+			{
+				{"POSITION" , InputElemDesc::INPUT_FORMAT::FLOAT3 , 0},
+				{"TEXCOORD" , InputElemDesc::INPUT_FORMAT::FLOAT2 , 12}
+			};
+			const auto programDir = GetProgramDirectory();
+			const auto vsPath = programDir / "TextureVS.cso";
+			const auto psPath = programDir / "TexturePS.cso";
+			VertexShader vs(cnv, vsPath, ieds);
+			PixelShader ps(cnv, psPath);
+			ConstantBuffer cb(cnv, sizeof(DirectX::XMMATRIX));
+			Image img("D:/wallpaperflare-cropped.jpg");
+			Texture tex(cnv, img);
+			cube.SetVShader(vs);
+			cube.SetPShader(ps);
+			cube.SetCBuffer(cb);
+			cube.SetTexture(tex);
+			objects[ObjComb] = cube;
+			return cube;
+		}
+	}
+	return objects[ObjComb];
+}
+
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
 {
-	KokodaiManager manager;	
-	/*auto cube = Cube<Canvas3D::VertexType>{manager.GetCanvas()};
-	auto pyramid = Pyramid<Canvas3D::VertexType>{ manager.GetCanvas() };
-
-	std::vector<InputElemDesc> ieds
-	{ 
-		{"POSITION" , InputElemDesc::INPUT_FORMAT::FLOAT3 , 0},
-		{"COLOR" , InputElemDesc::INPUT_FORMAT::UINT4 , 12}
-	};
-	
-	const auto programDir = GetProgramDirectory();
-	const auto vsPath = programDir / "VertexShader.cso";
-	const auto psPath = programDir / "PixelShader.cso";
-	
-	VertexShader vs(manager.GetCanvas(), vsPath, ieds);
-	PixelShader ps(manager.GetCanvas(), psPath);
-
-	ConstantBuffer cb(manager.GetCanvas(), sizeof(DirectX::XMMATRIX));
-	
-	cube.SetVShader(vs);
-	pyramid.SetVShader(vs);
-	
-	cube.SetPShader(ps);
-	pyramid.SetPShader(ps);
-
-	cube.SetCBuffer(cb);
-	pyramid.SetCBuffer(cb);*/
-	
-	auto paper = TexturedCube(manager.GetCanvas());
-	std::vector<InputElemDesc> ieds
-	{
-		{"POSITION" , InputElemDesc::INPUT_FORMAT::FLOAT3 , 0},
-		{"TEXCOORD" , InputElemDesc::INPUT_FORMAT::FLOAT2 , 12}
-	};
-
-	const auto programDir = GetProgramDirectory();
-	const auto vsPath = programDir / "TextureVS.cso";
-	const auto psPath = programDir / "TexturePS.cso";
-	
-	VertexShader vs(manager.GetCanvas(), vsPath, ieds);
-	PixelShader ps(manager.GetCanvas(), psPath);
-
-	ConstantBuffer cb(manager.GetCanvas(), sizeof(DirectX::XMMATRIX));
-
-	Image img("D:/wallpaperflare-cropped.jpg");
-	Texture tex(manager.GetCanvas(), img);
-
-	paper.SetVShader(vs);
-	paper.SetPShader(ps);
-	paper.SetCBuffer(cb);
-	paper.SetTexture(tex);
-
+	KokodaiManager manager;
 	std::mt19937 gen(std::random_device{}());
 	auto start = std::chrono::system_clock::now();
 	std::vector<Object> objs;
@@ -92,7 +100,15 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 	for (int i = 0; i < 100; i++)
 	{
-		Object obj = paper;
+		Object obj;
+		if (i % 2 == 0)
+		{
+			obj = BuildObject<Cube<Canvas3D::VertexType>>(manager.GetCanvas());
+		}
+		else
+		{
+			obj = BuildObject<TexturedCube>(manager.GetCanvas());
+		}
 		obj.SetPosition(std::uniform_real_distribution<float>{-10.0f, 10.0f}(gen), std::uniform_real_distribution<float>{-10.0f, 10.0f}(gen), std::uniform_real_distribution<float>{-10.0f, 10.0f}(gen));
 		auto f = Factor{ std::uniform_real_distribution<float>{-1.0f, 1.0f}(gen), std::uniform_real_distribution<float>{-1.0f, 1.0f}(gen),std::uniform_real_distribution<float>{-1.0f, 1.0f}(gen) };
 		obj.OnUpdate = [&,fact=f](Object& obj)
